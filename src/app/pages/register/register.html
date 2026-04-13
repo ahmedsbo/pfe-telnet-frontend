@@ -1,0 +1,221 @@
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <header class="reg-header">
+    <div class="brand">
+      <img src="images/logo.svg" alt="Telnet"
+           style="height: 45px; " />
+      <span class="brand-name">Telnet Academy</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="reg-main">
+    <div class="form-wrapper">
+
+      <!-- Card -->
+      <div class="form-card">
+
+        <!-- Decorative accent -->
+        <div class="card-accent"></div>
+
+        <!-- Header -->
+        <div class="card-header">
+          <h1 class="card-title">Rejoindre l'Académie</h1>
+          <p class="card-subtitle">
+            Veuillez renseigner vos informations professionnelles
+            pour créer votre compte collaborateur.
+          </p>
+        </div>
+
+        <form (ngSubmit)="handleRegister()" #registerForm="ngForm" novalidate>
+
+          <!-- Nom + Prénom -->
+          <div class="grid-2">
+            <div class="field-group">
+              <label class="field-label" for="nom">Nom</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="nom"
+                  name="nom"
+                  class="custom-input"
+                  placeholder="Dupont"
+                  [(ngModel)]="nom"
+                  required
+                  minlength="3"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="prenom">Prénom</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="prenom"
+                  name="prenom"
+                  class="custom-input"
+                  placeholder="Jean"
+                  [(ngModel)]="prenom"
+                  required
+                  minlength="3"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="field-group">
+            <label class="field-label" for="email">Email professionnel</label>
+            <div class="input-wrapper">
+              <span class="input-icon">✉</span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="custom-input"
+                placeholder="j.dupont@telnet.com"
+                [(ngModel)]="email"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Matricule -->
+          <div class="field-group">
+            <label class="field-label" for="matricule">Matricule</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🏷</span>
+              <input
+                type="text"
+                id="matricule"
+                name="matricule"
+                class="custom-input"
+                placeholder="T-2026-XXXX"
+                [(ngModel)]="matricule"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Rôle -->
+          <div class="field-group">
+            <label class="field-label" for="role">Rôle</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🏷</span>
+              <select
+                id="role"
+                name="role"
+                class="custom-input"
+                [(ngModel)]="role"
+                required
+              >
+                <option value="">-- Choisir un rôle --</option>
+                <option value="RH">Responsable RH</option>
+                <option value="COLLABORATEUR">Collaborateur</option>
+                <option value="ADMIN">Administrateur</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Mot de passe + Confirmer -->
+          <div class="grid-2">
+            <div class="field-group">
+              <label class="field-label" for="password">Mot de passe</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="custom-input"
+                  placeholder="••••••••"
+                  [(ngModel)]="password"
+                  required
+                  minlength="6"
+                />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="confirmPassword">Confirmer</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔐</span>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  class="custom-input"
+                  placeholder="••••••••"
+                  [(ngModel)]="confirmPassword"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- CGU -->
+          <div class="terms-row">
+            <input type="checkbox" id="terms" class="terms-check" />
+            <label for="terms" class="terms-label">
+              J'accepte les
+              <a href="#" class="terms-link">Conditions d'Utilisation</a>
+              et la
+              <a href="#" class="terms-link">Politique de Confidentialité</a>
+              de Telnet Academy.
+            </label>
+          </div>
+
+          <!-- Erreur / Succès -->
+          <div *ngIf="error" class="alert-error">{{ error }}</div>
+          <div *ngIf="success" class="alert-success">{{ success }}</div>
+
+          <!-- Bouton -->
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isLoading || !registerForm.valid">
+            <span>{{ isLoading ? 'Inscription en cours...' : 'Créer mon compte' }}</span>
+            <span *ngIf="!isLoading">→</span>
+          </button>
+
+        </form>
+
+        <!-- Footer link -->
+        <div class="card-footer">
+          <p>
+            Déjà un compte ?
+            <a routerLink="/login" class="login-link">Se connecter</a>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Trust indicators -->
+      <div class="trust-row">
+        <div class="trust-item">
+          <span>🔒</span>
+          <span>CONNEXION SÉCURISÉE</span>
+        </div>
+        <div class="trust-item">
+          <span>✅</span>
+          <span>CERTIFIÉ TELNET</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="reg-footer">
+    © 2026 Telnet Group — Portail de Formation Interne
+  </footer>
+
+  <!-- Background blobs -->
+  <div class="blob blob-left"></div>
+  <div class="blob blob-right"></div>
+
+</div>

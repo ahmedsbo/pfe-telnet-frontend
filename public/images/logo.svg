@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="65" viewBox="0 0 220 65">
+
+  <!-- Globe gris métallique -->
+  <defs>
+    <radialGradient id="globeGrad" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#d0d0d0"/>
+      <stop offset="50%" stop-color="#909090"/>
+      <stop offset="100%" stop-color="#505050"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Cercle globe -->
+  <circle cx="32" cy="32" r="28" fill="url(#globeGrad)"/>
+
+  <!-- Lignes du globe -->
+  <ellipse cx="32" cy="32" rx="14" ry="28" fill="none" stroke="#b0b8c8" stroke-width="1"/>
+  <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#b0b8c8" stroke-width="1"/>
+  <line x1="4" y1="32" x2="60" y2="32" stroke="#b0b8c8" stroke-width="1"/>
+
+  <!-- Triangle cyan -->
+  <polygon points="24,12 40,12 32,27" fill="#00bcd4"/>
+
+  <!-- Séparateur vertical -->
+  <line x1="72" y1="10" x2="72" y2="55" stroke="#d0d0d0" stroke-width="1"/>
+
+  <!-- Texte TELNET -->
+  <text x="82" y="38" font-family="Arial Black, Arial, sans-serif"
+        font-size="26" font-weight="900" letter-spacing="1" fill="#00bcd4">TELNET</text>
+
+  <!-- Texte Holding -->
+  <text x="84" y="54" font-family="Arial, sans-serif"
+        font-size="10" letter-spacing="5" fill="#999999">Holding</text>
+
+</svg>

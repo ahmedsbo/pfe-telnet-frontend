@@ -1,0 +1,151 @@
+<div class="modal-backdrop" (click)="closeForm.emit(false)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="title-section">
+        <h2 class="modal-title">{{ isEditMode ? 'Modifier' : 'Nouvelle' }} Formation</h2>
+        <p class="modal-subtitle">
+          Remplissez les informations ci-dessous pour {{ isEditMode ? 'mettre à jour cette' : 'créer une nouvelle' }} formation.
+        </p>
+      </div>
+      <button class="btn-close" (click)="closeForm.emit(false)" title="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="state-box" *ngIf="isLoading">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>Chargement des données...</p>
+      </div>
+
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="alert-error">
+        <span class="material-symbols-outlined">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <form *ngIf="!isLoading" [formGroup]="formationForm" (ngSubmit)="onSubmit()" class="form-layout">
+        
+        <!-- Titre & Durée -->
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label for="titre" class="form-label">Titre de la Formation <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="titre" 
+              formControlName="titre" 
+              class="form-control" 
+              [class.is-invalid]="isFieldInvalid('titre')"
+              placeholder="Ex: Angular Avancé"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('titre')">
+              <span class="material-symbols-outlined">warning</span> Requis (3 carac. min).
+            </div>
+          </div>
+
+          <div class="form-group" style="flex: 1;">
+            <label for="duree" class="form-label">Durée (jours) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="duree" 
+              formControlName="duree" 
+              class="form-control" 
+              [class.is-invalid]="isFieldInvalid('duree')"
+              min="1"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('duree')">
+              <span class="material-symbols-outlined">warning</span> Durée invalide.
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description" class="form-label">Description <span class="required">*</span></label>
+          <textarea 
+            id="description" 
+            formControlName="description" 
+            class="form-control" 
+            [class.is-invalid]="isFieldInvalid('description')"
+            placeholder="Décrivez les objectifs et le contenu de la formation..."
+          ></textarea>
+          <div class="error-text" *ngIf="isFieldInvalid('description')">
+            <span class="material-symbols-outlined">warning</span> Description requise.
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="form-row">
+          <div class="form-group form-group--half">
+            <label for="dateDebut" class="form-label">Date de Début <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="dateDebut" 
+              formControlName="dateDebut" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateDebut')"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('dateDebut')">
+              <span class="material-symbols-outlined">warning</span> Date de début requise.
+            </div>
+          </div>
+
+          <div class="form-group form-group--half">
+            <label for="dateFin" class="form-label">Date de Fin <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="dateFin" 
+              formControlName="dateFin" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateFin')"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('dateFin')">
+              <span class="material-symbols-outlined">warning</span> Date de fin requise.
+            </div>
+          </div>
+        </div>
+
+        <!-- Types et Statuts -->
+        <div class="form-row">
+          <div class="form-group form-group--half">
+            <label for="typeFormation" class="form-label">Type de Formation <span class="required">*</span></label>
+            <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('typeFormation')">
+              <select id="typeFormation" formControlName="typeFormation" class="form-control custom-select">
+                <option value="INTERNE">Interne</option>
+                <option value="EXTERNE">Externe</option>
+                <option value="EN_LIGNE">En Ligne</option>
+                <option value="HYBRIDE">Hybride</option>
+              </select>
+              <span class="material-symbols-outlined select-icon">expand_more</span>
+            </div>
+          </div>
+
+          <div class="form-group form-group--half">
+            <label for="etatformation" class="form-label">Statut <span class="required">*</span></label>
+            <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('etatformation')">
+              <select id="etatformation" formControlName="etatformation" class="form-control custom-select">
+                <option value="PLANIFIEE">Planifiée</option>
+                <option value="EN_COURS">En cours</option>
+                <option value="TERMINEE">Terminée</option>
+                <option value="ANNULEE">Annulée</option>
+              </select>
+              <span class="material-symbols-outlined select-icon">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeForm.emit(false)">Annuler</button>
+          <button type="submit" class="btn-submit" [disabled]="isSaving">
+            <span class="material-symbols-outlined spin" *ngIf="isSaving">progress_activity</span>
+            <span class="material-symbols-outlined" *ngIf="!isSaving">save</span>
+            {{ isSaving ? 'Enregistrement...' : (isEditMode ? 'Enregistrer les modifications' : 'Créer la Formation') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

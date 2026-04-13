@@ -1,0 +1,104 @@
+<div class="modal-backdrop" (click)="closeForm.emit(false)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="title-section">
+        <h2 class="modal-title">{{ isEditMode ? 'Modifier' : 'Nouveau' }} Plan de Formation</h2>
+        <p class="modal-subtitle">
+          Remplissez les informations ci-dessous pour {{ isEditMode ? 'mettre à jour ce' : 'créer un nouveau' }} plan.
+        </p>
+      </div>
+      <button class="btn-close" (click)="closeForm.emit(false)" title="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="state-box" *ngIf="isLoading">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>Chargement des données...</p>
+      </div>
+
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="alert-error">
+        <span class="material-symbols-outlined">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <form *ngIf="!isLoading" [formGroup]="planForm" (ngSubmit)="onSubmit()" class="form-layout">
+        
+        <!-- Ligne 1: Titre -->
+        <div class="form-group">
+          <label for="titre" class="form-label">Titre du Plan <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="titre" 
+            formControlName="titre" 
+            class="form-control" 
+            [class.is-invalid]="isFieldInvalid('titre')"
+            placeholder="Ex: Plan de Formation Annuel 2026"
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('titre')">
+            <span class="material-symbols-outlined">warning</span> Requis (3 caractères min).
+          </div>
+        </div>
+
+        <!-- Ligne 2: Dates -->
+        <div class="form-row">
+          <div class="form-group form-group--half">
+            <label for="dateDebut" class="form-label">Date de Début <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="dateDebut" 
+              formControlName="dateDebut" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateDebut')"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('dateDebut')">
+              <span class="material-symbols-outlined">warning</span> Date requise.
+            </div>
+          </div>
+
+          <div class="form-group form-group--half">
+            <label for="dateFin" class="form-label">Date de Fin <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="dateFin" 
+              formControlName="dateFin" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateFin')"
+            >
+            <div class="error-text" *ngIf="isFieldInvalid('dateFin')">
+              <span class="material-symbols-outlined">warning</span> Date requise.
+            </div>
+          </div>
+        </div>
+
+        <!-- Ligne 3: Statut -->
+        <div class="form-group">
+          <label for="etatplan" class="form-label">Statut du Plan <span class="required">*</span></label>
+          <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('etatplan')">
+            <select id="etatplan" formControlName="etatplan" class="form-control custom-select">
+              <option value="EN_PREPARATION">En préparation</option>
+              <option value="EN_VALIDATION">En validation</option>
+              <option value="VALIDE">Validé</option>
+              <option value="CLOTURE">Clôturé</option>
+            </select>
+            <span class="material-symbols-outlined select-icon">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeForm.emit(false)">Annuler</button>
+          <button type="submit" class="btn-submit" [disabled]="isSaving">
+            <span class="material-symbols-outlined spin" *ngIf="isSaving">progress_activity</span>
+            <span class="material-symbols-outlined" *ngIf="!isSaving">save</span>
+            {{ isSaving ? 'Enregistrement...' : (isEditMode ? 'Enregistrer' : 'Créer le Plan') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

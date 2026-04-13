@@ -1,0 +1,128 @@
+<div class="min-vh-100 d-flex">
+
+  <!-- Partie Gauche -->
+  <div class="d-none d-lg-flex flex-column justify-content-between p-5 left-panel">
+    <div>
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <img src="images/logo.svg" alt="Telnet"
+             style="height: 45px; " />
+        <div class="brand-title">Telnet Academy</div>
+      </div>
+      <div class="brand-line"></div>
+    </div>
+
+    <div>
+      <h1 class="hero-title">
+        L'excellence technologique au service du savoir.
+      </h1>
+      <p class="hero-desc">
+        Accédez à votre espace de formation continue et gérez vos compétences
+        avec une plateforme conçue pour l'innovation.
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex">
+        <div class="avatar av1"></div>
+        <div class="avatar av2"></div>
+        <div class="avatar av3"></div>
+      </div>
+      <span class="avatar-text">Rejoignez plus de 500 experts certifiés.</span>
+    </div>
+  </div>
+  <!-- Partie Droite -->
+  <main class="right-panel d-flex align-items-center justify-content-center p-4 p-lg-5">
+    <div class="form-box">
+
+      <!-- Mobile branding -->
+      <div class="d-lg-none mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <img src="images/logo.svg" alt="Telnet" style="height: 35px;" />
+          <span class="mobile-brand">Telnet Academy</span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h2 class="form-title">Connexion</h2>
+        <p class="form-subtitle">Bienvenue sur votre portail de formation.</p>
+      </div>
+
+      <form (ngSubmit)="handleLogin()" #loginForm="ngForm" novalidate>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="field-label" for="email">Email professionnel</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉</span>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="custom-input"
+              placeholder="nom@entreprise.com"
+              [(ngModel)]="email"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="field-label" for="password">Mot de passe</label>
+            <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="custom-input"
+              placeholder="••••••••"
+              [(ngModel)]="password"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="d-flex align-items-center mb-4">
+          <input type="checkbox" id="remember" class="remember-check" />
+          <label for="remember" class="remember-label ms-2">Rester connecté</label>
+        </div>
+
+        <!-- Erreur -->
+        <div *ngIf="error" class="alert-error mb-3">{{ error }}</div>
+
+        <!-- Bouton -->
+        <button
+          type="submit"
+          class="submit-btn w-100"
+          [disabled]="isLoading">
+          {{ isLoading ? 'Connexion en cours...' : 'Se connecter' }}
+        </button>
+
+      </form>
+
+
+      <!-- Footer -->
+
+
+
+      <div class="form-footer mt-5 pt-4">
+        <div>
+          <a href="/register" class="forgot-link">Créer un compte</a>
+        </div>
+
+        <p class="footer-text mb-3">Plateforme sécurisée par Telnet Group</p>
+        <div class="d-flex gap-4 justify-content-center">
+          <a href="#" class="footer-link">CONFIDENTIALITÉ</a>
+          <a href="#" class="footer-link">SUPPORT</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>

@@ -1,0 +1,36 @@
+<header class="navbar">
+
+  <!-- Search -->
+  <div class="navbar-search">
+    <span class="material-symbols-outlined search-icon">search</span>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Rechercher un plan..."
+      [(ngModel)]="searchQuery"
+    />
+  </div>
+
+  <!-- Right side -->
+  <div class="navbar-right">
+
+    <button class="icon-btn" title="Notifications">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+
+    <button class="icon-btn" title="Paramètres" (click)="goToSettings()">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+
+    <div class="navbar-divider"></div>
+
+    <div class="navbar-user">
+      <div class="user-text">
+        <p class="user-name">{{ user.name }}</p>
+        <p class="user-role">{{ user.role }}</p>
+      </div>
+      <img [src]="user.avatar" [alt]="user.name" class="user-avatar" />
+    </div>
+
+  </div>
+</header>

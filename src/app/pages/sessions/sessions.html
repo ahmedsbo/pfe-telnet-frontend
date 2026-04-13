@@ -1,0 +1,151 @@
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Gestion des Sessions de Formation</h2>
+      <p class="page-subtitle">
+        Planifiez et pilotez le déploiement logistique (dates, lieux, formateurs) de vos programmes de formation.
+      </p>
+    </div>
+    <button class="btn-create" (click)="createNewSession()">
+      <span class="material-symbols-outlined">add</span>
+      Planifier une Session
+    </button>
+  </div>
+
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar">
+    <div class="filter-chip" style="width: 300px;">
+      <span class="material-symbols-outlined">search</span>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (keyup)="applyFilters()" 
+        placeholder="Chercher par formateur, formation..." 
+        style="border: none; background: transparent; outline: none; flex: 1; font-family: 'Inter';"
+      >
+    </div>
+    <button class="btn-reset" (click)="resetFilters()">
+      <span class="material-symbols-outlined">close</span>
+      Effacer
+    </button>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="state-box" *ngIf="isLoading">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <p>Chargement des sessions...</p>
+  </div>
+
+  <!-- ── Error ── -->
+  <div class="state-box state-box--error" *ngIf="error && !isLoading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-create" (click)="loadSessions()">Réessayer</button>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="table-card" *ngIf="!isLoading && !error">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Formation</th>
+        <th>Dates</th>
+        <th>Formateur</th>
+        <th>Plan</th>
+        <th class="center">Places</th>
+        <th class="right">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <!-- Empty state -->
+      <tr *ngIf="paginatedSessions.length === 0">
+        <td colspan="6" class="empty-state">
+          <span class="material-symbols-outlined">inbox</span>
+          <p>Aucune session planifiée.</p>
+        </td>
+      </tr>
+
+      <!-- Rows -->
+      <tr *ngFor="let session of paginatedSessions" class="table-row">
+
+        <!-- Title / Formation -->
+        <td>
+          <div class="plan-name-cell">
+            <div class="plan-icon">
+              <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <span class="plan-title">{{ getFormationName(session.formationId) }}</span>
+          </div>
+        </td>
+
+        <!-- Dates (Debut au Fin) -->
+        <td class="text-secondary">
+          {{ formatDate(session.dateDebut) }} <br><span style="font-size: 11px;">au {{ formatDate(session.dateFin) }}</span>
+        </td>
+
+        <!-- Formateur -->
+        <td class="text-secondary">
+          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">person</span>
+          {{ session.formateur }}
+        </td>
+
+        <!-- Plan -->
+        <td class="text-secondary" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          {{ getPlanName(session.planFormationId) }}
+        </td>
+
+        <!-- Statut / Places -->
+        <td class="center">
+          <span class="badge badge-grey">
+            {{ session.nbrDePlaces }} places
+          </span>
+        </td>
+
+        <!-- Actions -->
+        <td class="right">
+          <div class="action-group">
+            <button class="action-btn" title="Modifier" (click)="editSession(session)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteSession(session)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- ── Footer / Pagination ── -->
+    <div class="table-footer">
+      <span class="footer-info">
+        Affichage de {{ paginatedSessions.length }} sur {{ filteredSessions.length }} sessions
+      </span>
+      <div class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          Précédent
+        </button>
+        <button
+          *ngFor="let p of pageNumbers"
+          class="page-btn"
+          [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)"
+        >{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages || totalPages === 0">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-session-form 
+    *ngIf="showForm" 
+    [sessionId]="editingSessionId" 
+    (closeForm)="onFormClose($event)">
+  </app-session-form>
+
+</div>

@@ -1,0 +1,58 @@
+<app-navbar />
+
+<div class="container-fluid p-4" style="background-color: #f0f4f8; min-height: calc(100vh - 68px);">
+
+  <!-- Message de bienvenue -->
+  <div class="mb-4">
+    <h4 style="color: #0d1b3e; font-weight: 700;">
+      Bienvenue, {{ currentUser?.nom }} 👋
+    </h4>
+    <p style="color: #6c757d;">
+      Tableau de bord — Gestion des Formations
+    </p>
+  </div>
+
+  <!-- Cartes statistiques -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3" *ngFor="let stat of stats">
+      <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-body p-4">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">{{ stat.icon }}</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: #0d1b3e;">
+            {{ stat.value }}
+          </div>
+          <div style="font-size: 13px; color: #6c757d; margin-top: 4px;">
+            {{ stat.label }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau formations récentes -->
+  <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-body p-4">
+      <h5 style="color: #0d1b3e; font-weight: 700; margin-bottom: 1.5rem;">
+        Formations récentes
+      </h5>
+      <table class="table table-hover">
+        <thead style="background-color: #f8f9fa;">
+        <tr>
+          <th style="color: #6c757d; font-weight: 600; font-size: 13px;">TITRE</th>
+          <th style="color: #6c757d; font-weight: 600; font-size: 13px;">DATE</th>
+          <th style="color: #6c757d; font-weight: 600; font-size: 13px;">PARTICIPANTS</th>
+          <th style="color: #6c757d; font-weight: 600; font-size: 13px;">STATUT</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">
+            Aucune formation pour le moment
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

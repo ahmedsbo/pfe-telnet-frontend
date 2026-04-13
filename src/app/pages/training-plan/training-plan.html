@@ -1,0 +1,150 @@
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Gestion des Plans de Formation</h2>
+      <p class="page-subtitle">
+        Pilotez et optimisez le développement des compétences stratégiques de vos équipes à travers des plans structurés.
+      </p>
+    </div>
+    <button class="btn-create" (click)="createNewPlan()">
+      <span class="material-symbols-outlined">add</span>
+      Créer un Nouveau Plan
+    </button>
+  </div>
+
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar">
+    <div class="filter-chip">
+      <span class="material-symbols-outlined">verified</span>
+      <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <option value="">Tout Statut</option>
+        <option value="EN_PREPARATION">En préparation</option>
+        <option value="EN_VALIDATION">En validation</option>
+        <option value="VALIDE">Validé</option>
+        <option value="CLOTURE">Clôturé</option>
+      </select>
+    </div>
+
+    <button class="btn-reset" (click)="resetFilters()">
+      <span class="material-symbols-outlined">filter_list_off</span>
+      Réinitialiser
+    </button>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="state-box" *ngIf="isLoading">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <p>Chargement des plans...</p>
+  </div>
+
+  <!-- ── Error ── -->
+  <div class="state-box state-box--error" *ngIf="error && !isLoading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-create" (click)="loadPlans()">Réessayer</button>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="table-card" *ngIf="!isLoading && !error">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Titre du Plan</th>
+        <th>Date Début</th>
+        <th>Date Fin</th>
+        <th>Sessions</th>
+        <th class="center">Statut</th>
+        <th class="right">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <!-- Empty state -->
+      <tr *ngIf="paginatedPlans.length === 0">
+        <td colspan="6" class="empty-state">
+          <span class="material-symbols-outlined">inbox</span>
+          <p>Aucun plan de formation trouvé.</p>
+        </td>
+      </tr>
+
+      <!-- Rows -->
+      <tr *ngFor="let plan of paginatedPlans" class="table-row">
+
+        <!-- Title -->
+        <td>
+          <div class="plan-name-cell">
+            <div class="plan-icon">
+              <span class="material-symbols-outlined">description</span>
+            </div>
+            <span class="plan-title">{{ plan.titre }}</span>
+          </div>
+        </td>
+
+        <!-- Date Début -->
+        <td class="text-secondary">{{ formatDate(plan.dateDebut) }}</td>
+
+        <!-- Date Fin -->
+        <td class="text-secondary">{{ formatDate(plan.dateFin) }}</td>
+
+        <!-- Sessions -->
+        <td class="text-primary-bold">
+          {{ plan.sessionIds?.length ?? 0 }} Session(s)
+        </td>
+
+        <!-- Status -->
+        <td class="center">
+            <span [class]="getStatusClass(plan.etatplan)">
+              {{ getStatusLabel(plan.etatplan) }}
+            </span>
+        </td>
+
+        <!-- Actions -->
+        <td class="right">
+          <div class="action-group">
+            <button class="action-btn" title="Consulter" (click)="viewPlan(plan)">
+              <span class="material-symbols-outlined">visibility</span>
+            </button>
+            <button class="action-btn" title="Modifier" (click)="editPlan(plan)">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="action-btn action-btn--danger" title="Supprimer" (click)="deletePlan(plan)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- ── Footer / Pagination ── -->
+    <div class="table-footer">
+      <span class="footer-info">
+        Affichage de {{ paginatedPlans.length }} sur {{ filteredPlans.length }} plans
+      </span>
+      <div class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          Précédent
+        </button>
+        <button
+          *ngFor="let p of pageNumbers"
+          class="page-btn"
+          [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)"
+        >{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-training-plan-form 
+    *ngIf="showForm" 
+    [planId]="editingPlanId" 
+    (closeForm)="onFormClose($event)">
+  </app-training-plan-form>
+
+</div>
