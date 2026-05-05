@@ -1,16 +1,32 @@
 <div class="page">
 
   <!-- ── Header ── -->
+
+
+  <div style="margin-bottom: 28px;">
+    <h1 class="page-title">Gestion des Plans de Formation</h1>
+    <p class="page-subtitle">
+      Pilotez et optimisez le développement des compétences stratégiques de vos équipes à travers des plans
+      structurés.
+    </p>
+  </div>
   <div class="page-header">
-    <div>
-      <h2 class="page-title">Gestion des Plans de Formation</h2>
-      <p class="page-subtitle">
-        Pilotez et optimisez le développement des compétences stratégiques de vos équipes à travers des plans structurés.
-      </p>
-    </div>
     <button class="btn-create" (click)="createNewPlan()">
       <span class="material-symbols-outlined">add</span>
-      Créer un Nouveau Plan
+      Ajouter un Nouveau Plan
+    </button>
+  </div>
+
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar">
+    <div class="filter-chip" style="width: 300px;">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" [(ngModel)]="searchQuery" (keyup)="applyFilters()" placeholder="Rechercher un plan..."
+        style="border: none; background: transparent; outline: none; flex: 1; font-family: 'Inter';">
+    </div>
+    <button class="btn-reset" (click)="resetFilters()">
+      <span class="material-symbols-outlined">close</span>
+      Effacer
     </button>
   </div>
 
@@ -43,79 +59,117 @@
   <div class="state-box state-box--error" *ngIf="error && !isLoading">
     <span class="material-symbols-outlined">error</span>
     <p>{{ error }}</p>
-    <button class="btn-create" (click)="loadPlans()">Réessayer</button>
+    <button class="btn-create" (click)="loadAllData()">Réessayer</button>
   </div>
 
   <!-- ── Table ── -->
   <div class="table-card" *ngIf="!isLoading && !error">
     <table class="table">
       <thead>
-      <tr>
-        <th>Titre du Plan</th>
-        <th>Date Début</th>
-        <th>Date Fin</th>
-        <th>Sessions</th>
-        <th class="center">Statut</th>
-        <th class="right">Actions</th>
-      </tr>
+        <tr>
+          <th>Reference</th>
+          <th>Titre du plan</th>
+          <th>Début</th>
+          <th>Fin</th>
+          <th>Formation</th>
+          <th>Session</th>
+          <th class="center" style="width: 220px;">Séances</th>
+          <th class="center">Statut</th>
+          <th class="right">Outils</th>
+        </tr>
       </thead>
       <tbody>
 
-      <!-- Empty state -->
-      <tr *ngIf="paginatedPlans.length === 0">
-        <td colspan="6" class="empty-state">
-          <span class="material-symbols-outlined">inbox</span>
-          <p>Aucun plan de formation trouvé.</p>
-        </td>
-      </tr>
+        <!-- Empty state -->
+        <tr *ngIf="paginatedPlans.length === 0">
+          <td colspan="11" class="empty-state">
+            <span class="material-symbols-outlined">inbox</span>
+            <p>Aucun plan de formation trouvé.</p>
+          </td>
+        </tr>
 
-      <!-- Rows -->
-      <tr *ngFor="let plan of paginatedPlans" class="table-row">
+        <!-- Rows -->
+        <tr *ngFor="let plan of paginatedPlans" class="table-row">
 
-        <!-- Title -->
-        <td>
-          <div class="plan-name-cell">
-            <div class="plan-icon">
-              <span class="material-symbols-outlined">description</span>
+          <td>
+            <div class="plan-name-cell">
+              <div class="plan-icon">
+                <span class="material-symbols-outlined">label</span>
+              </div>
+              <span class="plan-title"
+                style="font-family: 'Monaco', 'Consolas', monospace; font-size: 13px; font-weight: 500; color: #374151;">
+                {{ plan.reference }}
+              </span>
             </div>
-            <span class="plan-title">{{ plan.titre }}</span>
-          </div>
-        </td>
+          </td>
 
-        <!-- Date Début -->
-        <td class="text-secondary">{{ formatDate(plan.dateDebut) }}</td>
+          <!-- Title -->
+          <td>
+            <div class="plan-name-cell">
+              <div class="plan-icon">
+                <span class="material-symbols-outlined">description</span>
+              </div>
+              <span class="plan-title">{{ plan.titre }}</span>
+            </div>
+          </td>
 
-        <!-- Date Fin -->
-        <td class="text-secondary">{{ formatDate(plan.dateFin) }}</td>
+          <!-- Date Début -->
+          <td class="text-secondary">{{ formatDate(plan.dateDebut) }}</td>
 
-        <!-- Sessions -->
-        <td class="text-primary-bold">
-          {{ plan.sessionIds?.length ?? 0 }} Session(s)
-        </td>
+          <!-- Date Fin -->
+          <td class="text-secondary">{{ formatDate(plan.dateFin) }}</td>
 
-        <!-- Status -->
-        <td class="center">
+          <!-- Formation -->
+          <td class="text-secondary">
+            {{ getReferenceFormation(plan.formationId) }}
+          </td>
+
+          <!-- Session(s) -->
+          <td class="text-secondary">
+            <div *ngIf="plan.sessionIds && plan.sessionIds.length > 0; else singleSession">
+              <div *ngFor="let sid of plan.sessionIds" style="margin-bottom: 2px;">
+                {{ getReferenceSession(sid) }}
+              </div>
+            </div>
+            <ng-template #singleSession>
+              {{ getReferenceSession(plan.sessionId) }}
+            </ng-template>
+          </td>
+
+          <!-- Séances en colonne -->
+          <td class="center">
+            <div class="seances-stack" *ngIf="plan.seances && plan.seances.length > 0">
+              <div *ngFor="let s of plan.seances" class="seance-badge-mini" [title]="s.titre">
+                <span class="material-symbols-outlined" style="font-size: 14px;">event</span>
+                {{ formatDate(s.date) }} - {{ s.mode }}
+              </div>
+            </div>
+            <span *ngIf="!plan.seances || plan.seances.length === 0" class="text-secondary" style="font-size: 13px;">Aucune séance</span>
+          </td>
+
+          <!-- Status -->
+          <td class="center">
             <span [class]="getStatusClass(plan.etatplan)">
               {{ getStatusLabel(plan.etatplan) }}
             </span>
-        </td>
+          </td>
 
-        <!-- Actions -->
-        <td class="right">
-          <div class="action-group">
-            <button class="action-btn" title="Consulter" (click)="viewPlan(plan)">
-              <span class="material-symbols-outlined">visibility</span>
-            </button>
-            <button class="action-btn" title="Modifier" (click)="editPlan(plan)">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="action-btn action-btn--danger" title="Supprimer" (click)="deletePlan(plan)">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-          </div>
-        </td>
+          <!-- Actions -->
+          <td class="right">
+            <div class="action-group">
+              <button class="action-btn" title="Modifier" (click)="editPlan(plan)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="action-btn action-btn--danger" title="Supprimer" (click)="deletePlan(plan)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+              <button class="action-btn" title="Consulter" (click)="viewPlan(plan)">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
+          </td>
 
-      </tr>
+        </tr>
       </tbody>
     </table>
 
@@ -128,12 +182,8 @@
         <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
           Précédent
         </button>
-        <button
-          *ngFor="let p of pageNumbers"
-          class="page-btn"
-          [class.page-btn--active]="p === currentPage"
-          (click)="goToPage(p)"
-        >{{ p }}</button>
+        <button *ngFor="let p of pageNumbers" class="page-btn" [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)">{{ p }}</button>
         <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
           Suivant
         </button>
@@ -141,9 +191,9 @@
     </div>
   </div>
 
-  <app-training-plan-form 
-    *ngIf="showForm" 
+  <app-training-plan-form *ngIf="showForm" 
     [planId]="editingPlanId" 
+    [allPlans]="plans"
     (closeForm)="onFormClose($event)">
   </app-training-plan-form>
 

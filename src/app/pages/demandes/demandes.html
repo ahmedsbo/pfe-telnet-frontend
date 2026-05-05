@@ -1,0 +1,182 @@
+<div class="page">
+  <!-- ── Header ── -->
+
+  <div style=" margin-bottom: 28px;">
+
+    <h1 class="page-title">Gestion des Demandes</h1>
+    <p class="page-subtitle">
+      Consultez et gérez les demandes de formation soumises par les employés.
+    </p>
+  </div>
+  <div class="page-header">
+
+    <button class="btn-create" (click)="createNewDemande()">
+      <span class="material-symbols-outlined">add</span>
+      Ajouter une Demande
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-chip" style="width: 300px;">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" [(ngModel)]="searchQuery" (keyup)="applyFilters()" placeholder="Rechercher une demande...">
+    </div>
+    <button class="btn-reset" (click)="resetFilters()">
+      <span class="material-symbols-outlined">close</span>
+      Effacer
+    </button>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="state-box" *ngIf="isLoading">
+    <span class="material-symbols-outlined spin">progress_activity</span>
+    <p>Chargement des demandes...</p>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="table-card" *ngIf="!isLoading">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Demandeur</th>
+          <th>Formation</th>
+          <th>Plan</th>
+          <th>Date</th>
+          <th class="center">Statut</th>
+          <th class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Empty state -->
+        <tr *ngIf="demandes.length === 0">
+          <td colspan="5" class="empty-state">
+            <span class="material-symbols-outlined">inbox</span>
+            <p>Aucune demande trouvée.</p>
+          </td>
+        </tr>
+
+        <!-- Rows -->
+        <tr *ngFor="let d of paginatedDemandes" class="table-row">
+          <td>
+            <div class="plan-name-cell">
+              <div class="plan-icon">
+                <span class="material-symbols-outlined">description</span>
+              </div>
+              <span class="plan-title">{{ d.titre }}</span>
+            </div>
+          </td>
+          <td class="text-secondary">
+            <span class="material-symbols-outlined"
+              style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">person</span>
+            {{ d.demandeur }}
+          </td>
+          <td class="text-secondary">
+            {{ getFormationTitle(d.formationId) }}
+          </td>
+          <td class="text-secondary">
+            {{ getPlanTitle(d.planFormationId) }}
+          </td>
+          <td class="text-secondary">
+            {{ d.dateDemande }}
+          </td>
+          <td class="center">
+            <span class="badge" [ngClass]="getBadgeClass(d.etatDemande)">
+              {{ d.etatDemande || 'En attente' }}
+            </span>
+          </td>
+          <td class="right">
+            <div class="action-group">
+              <button class="action-btn action-btn--success" title="Approuver" (click)="updateStatus(d, 'Approuvée')">
+                <span class="material-symbols-outlined">done</span>
+              </button>
+              <button class="action-btn action-btn--warning" title="Rejeter" (click)="updateStatus(d, 'Rejetée')">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+              <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteDemande(d.demandeId!)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ── Footer / Pagination ── -->
+    <div class="table-footer">
+      <span class="footer-info">
+        Affichage de {{ paginatedDemandes.length }} sur {{ demandes.length }} demandes
+      </span>
+      <div class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          Précédent
+        </button>
+        <button *ngFor="let p of pageNumbers" class="page-btn" [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages || totalPages === 0">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Nouvelle Demande ── -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nouvelle Demande</h3>
+        <button class="btn-close" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form [formGroup]="demandeForm" (ngSubmit)="submitDemande()">
+        <div class="form-group">
+          <label>Titre de la demande</label>
+          <input type="text" formControlName="titre" placeholder="Ex: Formation en Angular..." required>
+        </div>
+
+        <div class="form-group">
+          <label>Demandeur</label>
+          <select formControlName="utilisateurId" required>
+            <option value="" disabled selected>-- Sélectionner un employé --</option>
+            <option *ngFor="let emp of employes" [value]="emp.utilisateurId">
+              {{ emp.nom }} {{ emp.prenom }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Date de demande</label>
+          <input type="date" formControlName="dateDemande" required>
+        </div>
+
+        <div class="form-group">
+          <label>Formation Associée </label>
+          <select formControlName="formationId">
+            <option value="">-- Aucune / À définir --</option>
+            <option *ngFor="let form of formations" [value]="form.formationId">
+              {{ form.titre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Plan de Formation Associé</label>
+          <select formControlName="planFormationId">
+            <option value="">-- Aucun / À définir --</option>
+            <option *ngFor="let plan of plans" [value]="plan.planFormationId">
+              {{ plan.titre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="demandeForm.invalid">Soumettre</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

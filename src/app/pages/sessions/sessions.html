@@ -1,16 +1,18 @@
 <div class="page">
 
   <!-- ── Header ── -->
+
+  <div style="margin-bottom: 30px;">
+    <h1 class="page-title">Gestion des Sessions de Formation</h1>
+    <p class="page-subtitle">
+      Planifiez et pilotez le déploiement logistique (dates, lieux, formateurs) de vos programmes de formation.
+    </p>
+  </div>
   <div class="page-header">
-    <div>
-      <h2 class="page-title">Gestion des Sessions de Formation</h2>
-      <p class="page-subtitle">
-        Planifiez et pilotez le déploiement logistique (dates, lieux, formateurs) de vos programmes de formation.
-      </p>
-    </div>
+
     <button class="btn-create" (click)="createNewSession()">
       <span class="material-symbols-outlined">add</span>
-      Planifier une Session
+      Ajouter une Session
     </button>
   </div>
 
@@ -18,13 +20,8 @@
   <div class="filter-bar">
     <div class="filter-chip" style="width: 300px;">
       <span class="material-symbols-outlined">search</span>
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
-        (keyup)="applyFilters()" 
-        placeholder="Chercher par formateur, formation..." 
-        style="border: none; background: transparent; outline: none; flex: 1; font-family: 'Inter';"
-      >
+      <input type="text" [(ngModel)]="searchQuery" (keyup)="applyFilters()" placeholder="Rechercher une session..."
+        style="border: none; background: transparent; outline: none; flex: 1; font-family: 'Inter';">
     </div>
     <button class="btn-reset" (click)="resetFilters()">
       <span class="material-symbols-outlined">close</span>
@@ -49,103 +46,118 @@
   <div class="table-card" *ngIf="!isLoading && !error">
     <table class="table">
       <thead>
-      <tr>
-        <th>Formation</th>
-        <th>Dates</th>
-        <th>Formateur</th>
-        <th>Plan</th>
-        <th class="center">Places</th>
-        <th class="right">Actions</th>
-      </tr>
+        <tr>
+          <th>Référence</th>
+          <th>Titre</th>
+          <th>Dates</th>
+          <th>Formateur</th>
+          <th>Formation</th>
+          <th class="center">Nombre de Places</th>
+          <th class="right">Actions</th>
+        </tr>
       </thead>
       <tbody>
 
-      <!-- Empty state -->
-      <tr *ngIf="paginatedSessions.length === 0">
-        <td colspan="6" class="empty-state">
-          <span class="material-symbols-outlined">inbox</span>
-          <p>Aucune session planifiée.</p>
-        </td>
-      </tr>
+        <!-- Empty state -->
+        <tr *ngIf="paginatedGroups.length === 0">
+          <td colspan="7" class="empty-state">
+            <span class="material-symbols-outlined">inbox</span>
+            <p>Aucune session planifiée.</p>
+          </td>
+        </tr>
 
-      <!-- Rows -->
-      <tr *ngFor="let session of paginatedSessions" class="table-row">
+        <!-- Rows -->
+        <tr *ngFor="let group of paginatedGroups" class="table-row">
 
-        <!-- Title / Formation -->
-        <td>
-          <div class="plan-name-cell">
-            <div class="plan-icon">
-              <span class="material-symbols-outlined">schedule</span>
+          <!-- Reference Session -->
+          <td>
+            <div class="plan-name-cell">
+              <div class="plan-icon">
+                <span class="material-symbols-outlined">label</span>
+              </div>
+              <span class="plan-title"
+                style="font-family: 'Monaco', 'Consolas', monospace; font-size: 13px; font-weight: 500; color: #374151;">
+                {{ group.reference }}
+              </span>
             </div>
-            <span class="plan-title">{{ getFormationName(session.formationId) }}</span>
-          </div>
-        </td>
+          </td>
 
-        <!-- Dates (Debut au Fin) -->
-        <td class="text-secondary">
-          {{ formatDate(session.dateDebut) }} <br><span style="font-size: 11px;">au {{ formatDate(session.dateFin) }}</span>
-        </td>
+          <!-- Titre Session (Select) -->
+          <td>
+            <div class="custom-select-wrapper" style="width: 100%;">
+              <select [(ngModel)]="group.selectedIndex" class="form-control"
+                style="padding: 8px 30px 8px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff;">
+                <option *ngFor="let session of group.sessions; let i = index" [value]="i">
+                  {{ session.titre }}
+                </option>
+              </select>
+            </div>
+          </td>
 
-        <!-- Formateur -->
-        <td class="text-secondary">
-          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">person</span>
-          {{ session.formateur }}
-        </td>
+          <!-- Dates (Dynamic) -->
+          <td class="text-secondary">
+            {{ formatDate(group.sessions[group.selectedIndex].dateDebut) }} <br>
+            <span style="font-size: 11px;">au {{ formatDate(group.sessions[group.selectedIndex].dateFin) }}</span>
+          </td>
 
-        <!-- Plan -->
-        <td class="text-secondary" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          {{ getPlanName(session.planFormationId) }}
-        </td>
+          <!-- Formateur (Dynamic) -->
+          <td class="text-secondary">
+            <span class="material-symbols-outlined"
+              style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">person</span>
+            {{ group.sessions[group.selectedIndex].formateur }}
+          </td>
 
-        <!-- Statut / Places -->
-        <td class="center">
-          <span class="badge badge-grey">
-            {{ session.nbrDePlaces }} places
-          </span>
-        </td>
+          <!-- Formation (Dynamic) -->
+          <td class="text-secondary"
+            style="max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+            [title]="getFormationName(group.sessions[group.selectedIndex].formationId)">
+            {{ getFormationName(group.sessions[group.selectedIndex].formationId) }}
+          </td>
 
-        <!-- Actions -->
-        <td class="right">
-          <div class="action-group">
-            <button class="action-btn" title="Modifier" (click)="editSession(session)">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteSession(session)">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-          </div>
-        </td>
+          <!-- Statut / Places (Dynamic) -->
+          <td class="center">
+            <span class="badge badge-grey">
+              {{ group.sessions[group.selectedIndex].nbrDePlaces }} places
+            </span>
+          </td>
 
-      </tr>
+          <!-- Actions (Dynamic) -->
+          <td class="right">
+            <div class="action-group">
+              <button class="action-btn" title="Modifier" (click)="editSession(group.sessions[group.selectedIndex])">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="action-btn action-btn--danger" title="Supprimer"
+                (click)="deleteSession(group.sessions[group.selectedIndex])">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+
+        </tr>
       </tbody>
     </table>
 
     <!-- ── Footer / Pagination ── -->
     <div class="table-footer">
       <span class="footer-info">
-        Affichage de {{ paginatedSessions.length }} sur {{ filteredSessions.length }} sessions
+        Affichage de {{ paginatedGroups.length }} sur {{ filteredGroups.length }} groupes de référence
       </span>
       <div class="pagination">
         <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
           Précédent
         </button>
-        <button
-          *ngFor="let p of pageNumbers"
-          class="page-btn"
-          [class.page-btn--active]="p === currentPage"
-          (click)="goToPage(p)"
-        >{{ p }}</button>
-        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages || totalPages === 0">
+        <button *ngFor="let p of pageNumbers" class="page-btn" [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages || totalPages === 0">
           Suivant
         </button>
       </div>
     </div>
   </div>
 
-  <app-session-form 
-    *ngIf="showForm" 
-    [sessionId]="editingSessionId" 
-    (closeForm)="onFormClose($event)">
+  <app-session-form *ngIf="showForm" [sessionId]="editingSessionId" (closeForm)="onFormClose($event)">
   </app-session-form>
 
 </div>

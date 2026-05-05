@@ -1,15 +1,6 @@
 <header class="navbar">
 
-  <!-- Search -->
-  <div class="navbar-search">
-    <span class="material-symbols-outlined search-icon">search</span>
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Rechercher un plan..."
-      [(ngModel)]="searchQuery"
-    />
-  </div>
+  <div class="navbar-left"></div>
 
   <!-- Right side -->
   <div class="navbar-right">
@@ -29,7 +20,7 @@
         <p class="user-name">{{ user.name }}</p>
         <p class="user-role">{{ user.role }}</p>
       </div>
-      <img [src]="user.avatar" [alt]="user.name" class="user-avatar" />
+      <div class="user-initials">{{ user.initials }}</div>
     </div>
 
   </div>

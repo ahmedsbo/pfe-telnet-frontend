@@ -1,16 +1,14 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
-import { Register } from './pages/register/register';
 import { authGuard } from './guards/auth-guard';
 import { LayoutComponent } from './layout/layout';
 
 export const routes: Routes = [
 
   // Pages publiques (sans sidebar/navbar)
-  { path: '',         component: Home },
-  { path: 'login',    component: Login },
-  { path: 'register', component: Register },
+  { path: '', component: Home },
+  { path: 'login', component: Login },
 
   // Pages protégées (avec sidebar + navbar via LayoutComponent)
   {
@@ -46,17 +44,32 @@ export const routes: Routes = [
       {
         path: 'formations/ajouter',
         loadComponent: () =>
-           import('./pages/formation-form/formation-form').then(m => m.FormationFormComponent)
+          import('./pages/formation-form/formation-form').then(m => m.FormationFormComponent)
       },
       {
         path: 'formations/modifier/:id',
         loadComponent: () =>
-           import('./pages/formation-form/formation-form').then(m => m.FormationFormComponent)
+          import('./pages/formation-form/formation-form').then(m => m.FormationFormComponent)
       },
       {
         path: 'sessions',
         loadComponent: () =>
           import('./pages/sessions/sessions').then(m => m.SessionsComponent)
+      },
+      {
+        path: 'demandes',
+        loadComponent: () =>
+          import('./pages/demandes/demandes').then(m => m.Demandes)
+      },
+      {
+        path: 'organismes',
+        loadComponent: () =>
+          import('./pages/organismes/organismes').then(m => m.OrganismesComponent)
+      },
+      {
+        path: 'evaluations',
+        loadComponent: () =>
+          import('./pages/evaluations/evaluations').then(m => m.EvaluationsComponent)
       },
     ]
   },

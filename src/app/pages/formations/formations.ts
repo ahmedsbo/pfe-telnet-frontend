@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Navbar } from '../../layout/navbar/navbar';
+import { ChangeDetectorRef } from '@angular/core';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { Formation } from '../../models/formation';
 import { FormationService } from '../../services/formation';
 import { FormationFormComponent } from '../formation-form/formation-form';
@@ -21,8 +24,10 @@ export class Formations implements OnInit {
   isLoading = true;
   error: string | null = null;
 
+
   // Filters
   selectedStatus = '';
+  searchQuery = '';
 
   // Form toggling
   showForm = false;
@@ -32,13 +37,26 @@ export class Formations implements OnInit {
   currentPage = 1;
   itemsPerPage = 5;
 
+  private routerSubscription?: Subscription;
+
   constructor(
     private formationService: FormationService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.loadFormations();
+    });
+  }
 
   ngOnInit() {
     this.loadFormations();
+  }
+
+  ngOnDestroy() {
+    this.routerSubscription?.unsubscribe();
   }
 
   loadFormations() {
@@ -46,16 +64,20 @@ export class Formations implements OnInit {
     this.error = null;
     this.formationService.getAll().subscribe({
       next: (data) => {
-        this.formations = data;
+        this.formations = data.sort((a, b) => 
+          a.reference.localeCompare(b.reference, undefined, { numeric: true, sensitivity: 'base' })
+        );
         this.applyFilters();
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Erreur lors du chargement des formations';
         this.isLoading = false;
       }
     });
   }
+
 
   applyFilters(): void {
     let result = [...this.formations];
@@ -70,6 +92,26 @@ export class Formations implements OnInit {
     this.selectedStatus = '';
     this.filteredFormations = [...this.formations];
     this.currentPage = 1;
+  }
+
+  applyFiltersSearch(): void {
+    if (!this.searchQuery) {
+      this.filteredFormations = [...this.formations];
+    } else {
+      const q = this.searchQuery.toLowerCase();
+      this.filteredFormations = this.formations.filter(s =>
+        (s.titre && s.titre.toLowerCase().includes(q)) ||
+        (s.reference && s.reference.toLowerCase().includes(q)) ||
+        (s.typeFormation && s.typeFormation.toLowerCase().includes(q))
+
+      );
+    }
+    this.currentPage = 1;
+  }
+
+  resetFiltersSearch(): void {
+    this.searchQuery = '';
+    this.applyFilters();
   }
 
   // ── Pagination ──
@@ -90,7 +132,6 @@ export class Formations implements OnInit {
     if (page >= 1 && page <= this.totalPages) this.currentPage = page;
   }
 
-  // ── Validation and Display ──
   getStatusLabel(status: string): string {
     const map: Record<string, string> = {
       PLANIFIEE: 'PLANIFIÉE',
@@ -118,9 +159,7 @@ export class Formations implements OnInit {
     });
   }
 
-  // ── Actions ──
   viewFormation(formation: Formation): void {
-    // Navigate to view page if exists (or implement logic)
     console.log('View:', formation);
   }
 

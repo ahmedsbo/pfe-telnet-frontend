@@ -27,9 +27,26 @@
 
       <form *ngIf="!isLoading" [formGroup]="planForm" (ngSubmit)="onSubmit()" class="form-layout">
         
-        <!-- Ligne 1: Titre -->
+        <!-- Ligne 1: Référence -->
         <div class="form-group">
-          <label for="titre" class="form-label">Titre du Plan <span class="required">*</span></label>
+          <label for="reference" class="form-label">Référence <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="reference" 
+            formControlName="reference" 
+            class="form-control readonly-field" 
+            [class.is-invalid]="isFieldInvalid('reference')"
+            placeholder="Génération automatique..."
+            readonly
+          >
+          <div class="error-text" *ngIf="isFieldInvalid('reference')">
+            <span class="material-symbols-outlined">warning</span> Référence requise.
+          </div>
+        </div>
+
+        <!-- Ligne 2: Titre -->
+        <div class="form-group">
+          <label for="titre" class="form-label">Titre de plan de formation <span class="required">*</span></label>
           <input 
             type="text" 
             id="titre" 
@@ -43,7 +60,7 @@
           </div>
         </div>
 
-        <!-- Ligne 2: Dates -->
+        <!-- Ligne 2b: Dates -->
         <div class="form-row">
           <div class="form-group form-group--half">
             <label for="dateDebut" class="form-label">Date de Début <span class="required">*</span></label>
@@ -55,7 +72,9 @@
               [class.is-invalid]="isFieldInvalid('dateDebut')"
             >
             <div class="error-text" *ngIf="isFieldInvalid('dateDebut')">
-              <span class="material-symbols-outlined">warning</span> Date requise.
+              <span class="material-symbols-outlined">warning</span>
+              <span *ngIf="planForm.get('dateDebut')?.hasError('required')">Date requise.</span>
+              <span *ngIf="planForm.get('dateDebut')?.hasError('pastDate')">La date doit être aujourd'hui ou plus tard.</span>
             </div>
           </div>
 
@@ -69,16 +88,113 @@
               [class.is-invalid]="isFieldInvalid('dateFin')"
             >
             <div class="error-text" *ngIf="isFieldInvalid('dateFin')">
-              <span class="material-symbols-outlined">warning</span> Date requise.
+              <span class="material-symbols-outlined">warning</span>
+              <span *ngIf="planForm.get('dateFin')?.hasError('required')">Date requise.</span>
+              <span *ngIf="planForm.get('dateFin')?.hasError('pastDate')">La date doit être aujourd'hui ou plus tard.</span>
             </div>
           </div>
         </div>
 
-        <!-- Ligne 3: Statut -->
+        <!-- Ligne 3: Session & Formation -->
+        <div class="form-row">
+          <div class="form-group form-group--half">
+            <label for="sessionId" class="form-label">Session <span class="required">*</span></label>
+            <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('sessionId')">
+              <select id="sessionId" formControlName="sessionId" class="form-control custom-select">
+                <option value="">--sélectionnez une session--</option>
+                <option *ngFor="let s of filteredSessions" [value]="s.id">
+                  {{ s.titre }} ({{ s.reference }}) - [{{ formatDate(s.dateDebut) }} au {{ formatDate(s.dateFin) }}]
+                </option>
+              </select>
+              <span class="material-symbols-outlined select-icon">expand_more</span>
+            </div>
+          </div>
+
+          <div class="form-group form-group--half">
+            <label for="formationId" class="form-label">Formation <span class="required">*</span></label>
+            <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('formationId')">
+              <select id="formationId" formControlName="formationId" class="form-control custom-select">
+                <option value="">--sélectionnez la formation--</option>
+                <option *ngFor="let f of formations" [value]="f.formationId">{{ f.titre }} ({{ f.reference }})</option>
+              </select>
+              <span class="material-symbols-outlined select-icon">expand_more</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Séances Dynamiques -->
+        <div class="form-section" style="margin-bottom: 24px;">
+          <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <h3 style="font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0;">Séances de la formation</h3>
+              <span *ngIf="selectedFormationNbrSessions !== null" 
+                    style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 600;"
+                    [ngStyle]="{'background': seances.length === selectedFormationNbrSessions ? '#dcfce7' : '#fee2e2', 'color': seances.length === selectedFormationNbrSessions ? '#166534' : '#991b1b'}">
+                {{ seances.length }} / {{ selectedFormationNbrSessions }} séance(s)
+              </span>
+            </div>
+            <button type="button" class="btn-add-seance" (click)="ajouterSeance()" 
+                    style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; background: #4b7bec; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(75, 123, 236, 0.2);">
+              <span class="material-symbols-outlined" style="font-size: 20px;">add_circle</span>
+              Ajouter une séance
+            </button>
+          </div>
+          
+          <div formArrayName="seances">
+            <div *ngFor="let seance of seances.controls; let i=index" [formGroupName]="i" 
+                 style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;">
+              
+              <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1.5; min-width: 150px; margin-bottom: 0;">
+                  <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 0.85rem;">Titre de la séance <span class="required" style="color: #ef4444;">*</span></label>
+                  <input type="text" formControlName="titre" class="form-control" placeholder="Ex: Séance 1" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 130px; margin-bottom: 0;">
+                  <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 0.85rem;">Date exacte <span class="required" style="color: #ef4444;">*</span></label>
+                  <input type="date" formControlName="date" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 110px; margin-bottom: 0;">
+                  <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 0.85rem;">Heure <span class="required" style="color: #ef4444;">*</span></label>
+                  <input type="time" formControlName="heure" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 130px; margin-bottom: 0;">
+                  <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 0.85rem;">Mode <span class="required" style="color: #ef4444;">*</span></label>
+                  <select formControlName="mode" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer;">
+                    <option *ngFor="let mode of modesSeance" [value]="mode">{{ mode }}</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="flex: 0.8; min-width: 90px; margin-bottom: 0;">
+                  <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 0.85rem;">Durée (h) <span class="required" style="color: #ef4444;">*</span></label>
+                  <input type="number" formControlName="dureeEnHeures" class="form-control" min="0.5" step="0.5" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                </div>
+
+                <button type="button" (click)="supprimerSeance(i)" 
+                        style="background: #fee2e2; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 8px; transition: all 0.2s ease;" 
+                        onmouseover="this.style.background='#fecaca'; this.style.transform='scale(1.05)'" 
+                        onmouseout="this.style.background='#fee2e2'; this.style.transform='scale(1)'" 
+                        title="Supprimer">
+                  <span class="material-symbols-outlined" style="font-size: 22px;">delete</span>
+                </button>
+              </div>
+            </div>
+            
+            <div *ngIf="seances.length === 0" style="text-align: center; padding: 24px; color: #64748b; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
+              Aucune séance ajoutée.
+            </div>
+          </div>
+        </div>
+
+        <!-- Ligne 6: Statut -->
         <div class="form-group">
-          <label for="etatplan" class="form-label">Statut du Plan <span class="required">*</span></label>
+          <label for="etatplan" class="form-label">Statu <span class="required">*</span></label>
           <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('etatplan')">
             <select id="etatplan" formControlName="etatplan" class="form-control custom-select">
+              <option value="">--sélectionnez la statu--</option>
               <option value="EN_PREPARATION">En préparation</option>
               <option value="EN_VALIDATION">En validation</option>
               <option value="VALIDE">Validé</option>
@@ -88,14 +204,34 @@
           </div>
         </div>
 
+        <!-- Validation error for total duration and number of seances -->
+        <div class="alert-error" *ngIf="planForm.hasError('dureeTotaleExcedee')">
+          <span class="material-symbols-outlined">error</span>
+          <span>La durée totale des séances ne doit pas dépasser la durée de la formation.</span>
+        </div>
+        <div class="alert-error" *ngIf="planForm.hasError('nombreSeancesExcedeGlobal')">
+          <span class="material-symbols-outlined">error</span>
+          <span>
+            Le total des séances ({{ planForm.getError('nombreSeancesExcedeGlobal').other }} déjà prévues + {{ planForm.getError('nombreSeancesExcedeGlobal').current }} ici) 
+            dépasse le maximum autorisé pour la formation ({{ planForm.getError('nombreSeancesExcedeGlobal').max }}).
+          </span>
+        </div>
+        <div class="alert-error" *ngIf="planForm.hasError('seanceHorsSession')">
+          <span class="material-symbols-outlined">error</span>
+          <span>La date d'une séance est hors de la période de la <strong>session</strong> sélectionnée.</span>
+        </div>
+        <div class="alert-error" *ngIf="planForm.hasError('seanceHorsPlan')">
+          <span class="material-symbols-outlined">error</span>
+          <span>La date d'une séance est hors de la période globale du plan.</span>
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="closeForm.emit(false)">Annuler</button>
-          <button type="submit" class="btn-submit" [disabled]="isSaving">
+          <button type="submit" class="btn-submit" [disabled]="isSaving" style="background-color: #4b7bec;">
             <span class="material-symbols-outlined spin" *ngIf="isSaving">progress_activity</span>
-            <span class="material-symbols-outlined" *ngIf="!isSaving">save</span>
-            {{ isSaving ? 'Enregistrement...' : (isEditMode ? 'Enregistrer' : 'Créer le Plan') }}
+            {{ isSaving ? 'Ajout...' : (isEditMode ? 'Enregistrer' : 'Ajouter') }}
           </button>
+          <button type="button" class="btn-cancel" (click)="closeForm.emit(false)" style="background-color: #d1d8e0; color: #4b6584;">Annuler</button>
         </div>
 
       </form>

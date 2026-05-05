@@ -1,14 +1,15 @@
 .page {
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 /* ── Header ── */
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 28px;
 }
 
 .page-title {
@@ -24,6 +25,8 @@
   font-size: 14px;
   color: #6b7280;
   margin: 0;
+  max-width: 480px;
+  line-height: 1.55;
 }
 
 .btn-create {
@@ -33,21 +36,19 @@
   background: #00346f;
   color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
+  border-radius: 12px;
+  padding: 12px 22px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 52, 111, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 52, 111, 0.25);
   transition: opacity 0.2s, transform 0.15s;
+  white-space: nowrap;
 }
 
-.btn-create:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
+.btn-create:hover  { opacity: 0.92; transform: translateY(-1px); }
+.btn-create:active { transform: translateY(0); }
 .btn-create .material-symbols-outlined { font-size: 20px; }
 
 /* ── Filter Bar ── */
@@ -218,15 +219,16 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 20px;
+  padding: 4px 12px;
+  border-radius: 999px;
   font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 .badge-grey { background: #f3f4f6; color: #4b5563; }
+.badge-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
 /* Actions */
 .action-group {
@@ -236,30 +238,29 @@
 }
 
 .action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
   border: none;
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
+  background: none;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  color: #00346f;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
 }
 
-.action-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
+.action-btn:hover  { background: rgba(0, 52, 111, 0.08); }
+.action-btn:active { transform: scale(0.88); }
+.action-btn .material-symbols-outlined { font-size: 19px; }
 
-.action-btn--danger:hover {
-  background: #fee2e2;
+.action-btn--danger {
   color: #ef4444;
 }
-
-.action-btn .material-symbols-outlined { font-size: 18px; }
+.action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
 
 /* ── Empty State ── */
 .empty-state {

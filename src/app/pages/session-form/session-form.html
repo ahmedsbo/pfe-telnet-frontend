@@ -1,6 +1,6 @@
 <div class="modal-backdrop" (click)="closeForm.emit(false)">
   <div class="modal-container" (click)="$event.stopPropagation()">
-    
+
     <div class="modal-header">
       <div class="title-section">
         <h2 class="modal-title">{{ isEditMode ? 'Modifier' : 'Nouvelle' }} Session</h2>
@@ -36,23 +36,13 @@
 
           <!-- Toggle Interne / Externe -->
           <div class="type-toggle">
-            <button
-              type="button"
-              class="toggle-btn"
-              [class.active]="typeFormateur === 'INTERNE'"
-              (click)="setTypeFormateur('INTERNE')"
-              id="btn-formateur-interne"
-            >
+            <button type="button" class="toggle-btn" [class.active]="typeFormateur === 'INTERNE'"
+              (click)="setTypeFormateur('INTERNE')" id="btn-formateur-interne">
               <span class="material-symbols-outlined">badge</span>
               Interne
             </button>
-            <button
-              type="button"
-              class="toggle-btn"
-              [class.active]="typeFormateur === 'EXTERNE'"
-              (click)="setTypeFormateur('EXTERNE')"
-              id="btn-formateur-externe"
-            >
+            <button type="button" class="toggle-btn" [class.active]="typeFormateur === 'EXTERNE'"
+              (click)="setTypeFormateur('EXTERNE')" id="btn-formateur-externe">
               <span class="material-symbols-outlined">business</span>
               Externe
             </button>
@@ -65,7 +55,8 @@
               Sélectionnez un membre de l'entreprise comme formateur.
             </div>
             <div class="form-group">
-              <label for="formateurInterneId" class="form-label">Employé Formateur <span class="required">*</span></label>
+              <label for="formateurInterneId" class="form-label">Employé Formateur <span
+                  class="required">*</span></label>
               <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('formateurInterneId')">
                 <select id="formateurInterneId" formControlName="formateurInterneId" class="form-control custom-select">
                   <option value="">-- Sélectionnez un employé --</option>
@@ -81,56 +72,59 @@
             </div>
           </div>
 
-          <!-- EXTERNE : saisie libre nom + organisme -->
+          <!-- EXTERNE : sélection organisme puis formateur -->
           <div *ngIf="typeFormateur === 'EXTERNE'" class="formateur-panel panel-externe">
             <div class="panel-hint">
               <span class="material-symbols-outlined">info</span>
-              Saisissez les informations du formateur extérieur à l'entreprise.
+              Sélectionnez l'organisme puis le formateur rattaché.
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label for="formateurExterneNom" class="form-label">Nom Complet <span class="required">*</span></label>
-                <input
-                  type="text"
-                  id="formateurExterneNom"
-                  formControlName="formateurExterneNom"
-                  class="form-control"
-                  [class.is-invalid]="isFieldInvalid('formateurExterneNom')"
-                  placeholder="Ex: Jean Dupont"
-                >
-                <div class="error-text" *ngIf="isFieldInvalid('formateurExterneNom')">
-                  <span class="material-symbols-outlined">warning</span> Requis (3 carac. min).
+                <label for="organismeId" class="form-label">Organisme <span class="required">*</span></label>
+                <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('organismeId')">
+                  <select id="organismeId" formControlName="organismeId" class="form-control custom-select">
+                    <option value="">-- Sélectionnez un organisme --</option>
+                    <option *ngFor="let org of organismes" [value]="org.organismeId">{{ org.nom }}</option>
+                  </select>
+                  <span class="material-symbols-outlined select-icon">expand_more</span>
+                </div>
+                <div class="error-text" *ngIf="isFieldInvalid('organismeId')">
+                  <span class="material-symbols-outlined">warning</span> Requis.
                 </div>
               </div>
               <div class="form-group">
-                <label for="formateurExterneOrganisme" class="form-label">Organisme <span class="required">*</span></label>
-                <input
-                  type="text"
-                  id="formateurExterneOrganisme"
-                  formControlName="formateurExterneOrganisme"
-                  class="form-control"
-                  [class.is-invalid]="isFieldInvalid('formateurExterneOrganisme')"
-                  placeholder="Ex: Consulting RH Sarl"
-                >
-                <div class="error-text" *ngIf="isFieldInvalid('formateurExterneOrganisme')">
-                  <span class="material-symbols-outlined">warning</span> Requis (2 carac. min).
+                <label for="formateurExterneId" class="form-label">Formateur <span class="required">*</span></label>
+                <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('formateurExterneId')">
+                  <select id="formateurExterneId" formControlName="formateurExterneId" class="form-control custom-select" 
+                    [disabled]="!sessionForm.get('organismeId')?.value">
+                    <option value="">-- Sélectionnez un formateur --</option>
+                    <option *ngFor="let f of filteredFormateurs" [value]="f.id">{{ f.prenom }} {{ f.nom }}</option>
+                  </select>
+                  <span class="material-symbols-outlined select-icon">expand_more</span>
+                </div>
+                <div class="error-text" *ngIf="isFieldInvalid('formateurExterneId')">
+                  <span class="material-symbols-outlined">warning</span> Requis.
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        <div class="form-group" style="flex: 2;">
+          <label for="titre" class="form-label">Titre de la Session <span class="required">*</span></label>
+          <input type="text" id="titre" formControlName="titre" class="form-control"
+            [class.is-invalid]="isFieldInvalid('titre')" placeholder="Génération automatique..."
+            [readonly]="!!selectedFormation" [class.readonly-input]="!!selectedFormation">
+          <div class="error-text" *ngIf="isFieldInvalid('titre')">
+            <span class="material-symbols-outlined">warning</span> Requis.
+          </div>
+        </div>
+
         <!-- Nb. Places -->
         <div class="form-group">
           <label for="nbrDePlaces" class="form-label">Nb. Places <span class="required">*</span></label>
-          <input
-            type="number"
-            id="nbrDePlaces"
-            formControlName="nbrDePlaces"
-            class="form-control"
-            [class.is-invalid]="isFieldInvalid('nbrDePlaces')"
-            min="1"
-          >
+          <input type="number" id="nbrDePlaces" formControlName="nbrDePlaces" class="form-control"
+            [class.is-invalid]="isFieldInvalid('nbrDePlaces')" min="1">
           <div class="error-text" *ngIf="isFieldInvalid('nbrDePlaces')">
             <span class="material-symbols-outlined">warning</span> Nombre invalide.
           </div>
@@ -139,15 +133,25 @@
         <!-- Description -->
         <div class="form-group">
           <label for="description" class="form-label">Description / Détails <span class="required">*</span></label>
-          <textarea
-            id="description"
-            formControlName="description"
-            class="form-control"
+          <textarea id="description" formControlName="description" class="form-control"
             [class.is-invalid]="isFieldInvalid('description')"
-            placeholder="Précisez le lieu, la salle ou d'autres détails de cette session..."
-          ></textarea>
+            placeholder="Précisez le lieu, la salle ou d'autres détails de cette session..."></textarea>
           <div class="error-text" *ngIf="isFieldInvalid('description')">
             <span class="material-symbols-outlined">warning</span> Requis.
+          </div>
+        </div>
+
+        <!-- Formation Info (Dates hint) -->
+        <div class="formation-dates-info" *ngIf="selectedFormation">
+          <div class="info-content">
+            <span class="material-symbols-outlined">event_available</span>
+            <div class="info-text">
+              <strong>Dates de la formation parente :</strong>
+              <span>{{ formatDate(selectedFormation.dateDebut) }} au {{ formatDate(selectedFormation.dateFin) }}</span>
+            </div>
+          </div>
+          <div class="info-badge" *ngIf="selectedFormation.nbrSessions">
+            Durée suggérée : ~{{ getSuggestedDuration() }} jours / session
           </div>
         </div>
 
@@ -155,42 +159,37 @@
         <div class="form-row">
           <div class="form-group form-group--half">
             <label for="dateDebut" class="form-label">Date de Début <span class="required">*</span></label>
-            <input
-              type="date"
-              id="dateDebut"
-              formControlName="dateDebut"
-              class="form-control"
-              [class.is-invalid]="isFieldInvalid('dateDebut')"
-            >
+            <input type="date" id="dateDebut" formControlName="dateDebut" class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateDebut') || sessionForm.hasError('horsDatesFormation')">
             <div class="error-text" *ngIf="isFieldInvalid('dateDebut')">
-              <span class="material-symbols-outlined">warning</span> Requis.
+              <span class="material-symbols-outlined">warning</span>
+              <span *ngIf="sessionForm.get('dateDebut')?.hasError('required')">Requis.</span>
+              <span *ngIf="sessionForm.get('dateDebut')?.hasError('pastMonth')">Le mois doit être actuel ou futur.</span>
             </div>
           </div>
 
           <div class="form-group form-group--half">
             <label for="dateFin" class="form-label">Date de Fin <span class="required">*</span></label>
-            <input
-              type="date"
-              id="dateFin"
-              formControlName="dateFin"
-              class="form-control"
-              [class.is-invalid]="isFieldInvalid('dateFin')"
-            >
+            <input type="date" id="dateFin" formControlName="dateFin" class="form-control"
+              [class.is-invalid]="isFieldInvalid('dateFin') || sessionForm.hasError('horsDatesFormation')">
             <div class="error-text" *ngIf="isFieldInvalid('dateFin')">
-              <span class="material-symbols-outlined">warning</span> Requis.
+              <span class="material-symbols-outlined">warning</span>
+              <span *ngIf="sessionForm.get('dateFin')?.hasError('required')">Requis.</span>
+              <span *ngIf="sessionForm.get('dateFin')?.hasError('pastMonth')">Le mois doit être actuel ou futur.</span>
             </div>
           </div>
         </div>
 
-        <!-- Liaisons (Formation & Plan) -->
+        <!-- Liaisons (Formation & Reference) -->
         <div class="form-row">
           <!-- Formation Link -->
-          <div class="form-group form-group--half">
-            <label for="formationId" class="form-label">Pour la Formation : <span class="required">*</span></label>
+          <div class="form-group" style="flex: 2;">
+            <label for="formationId" class="form-label">Formation associée <span class="required">*</span></label>
             <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('formationId')">
               <select id="formationId" formControlName="formationId" class="form-control custom-select">
                 <option value="">-- Sélectionnez une formation --</option>
-                <option *ngFor="let formation of formations" [value]="formation.formationId">{{ formation.titre }}</option>
+                <option *ngFor="let formation of formations" [value]="formation.formationId">[{{ formation.reference }}]
+                  {{ formation.titre }}</option>
               </select>
               <span class="material-symbols-outlined select-icon">expand_more</span>
             </div>
@@ -199,20 +198,37 @@
             </div>
           </div>
 
-          <!-- Plan Link -->
-          <div class="form-group form-group--half">
-            <label for="planFormationId" class="form-label">Dans le Plan : <span class="required">*</span></label>
-            <div class="custom-select-wrapper" [class.is-invalid]="isFieldInvalid('planFormationId')">
-              <select id="planFormationId" formControlName="planFormationId" class="form-control custom-select">
-                <option value="">-- Sélectionnez un plan --</option>
-                <option *ngFor="let plan of trainingPlans" [value]="plan.planFormationId">{{ plan.titre }}</option>
-              </select>
-              <span class="material-symbols-outlined select-icon">expand_more</span>
-            </div>
-            <div class="error-text" *ngIf="isFieldInvalid('planFormationId')">
-              <span class="material-symbols-outlined">warning</span> Veuillez lier un plan.
+          <!-- Session Reference -->
+          <div class="form-group" style="flex: 1;">
+            <label for="reference" class="form-label">Réf. Session <span class="required">*</span></label>
+            <input type="text" id="reference" formControlName="reference" class="form-control"
+              [class.is-invalid]="isFieldInvalid('reference')" placeholder="Ex: REF-S001" 
+              [readonly]="!!selectedFormation" [class.readonly-input]="!!selectedFormation">
+            <div class="error-text" *ngIf="isFieldInvalid('reference')">
+              <span class="material-symbols-outlined">warning</span> Invalide (ex: REF-S001).
             </div>
           </div>
+        </div>
+
+        <!-- Cross-field Errors -->
+        <div class="alert-error"
+          *ngIf="sessionForm.hasError('datesInvalides') && (sessionForm.get('dateDebut')?.dirty || sessionForm.get('dateFin')?.dirty)">
+          <span class="material-symbols-outlined">error</span> La date de fin doit être après la date de début.
+        </div>
+        <div class="alert-error" *ngIf="sessionForm.hasError('horsDatesFormation')">
+          <span class="material-symbols-outlined">error</span> Les dates de la session doivent être comprises dans
+          celles de la formation liée.
+        </div>
+        <div class="alert-error" *ngIf="sessionForm.hasError('chevauchementSession')">
+          <span class="material-symbols-outlined">event_busy</span> 
+          Conflit : Ces dates chevauchent déjà la session 
+          <strong>"{{ sessionForm.getError('chevauchementSession') }}"</strong>.
+        </div>
+
+        <!-- Session Limit reached info -->
+        <div class="alert-error" *ngIf="selectedFormation && !isEditMode && existingSessions.filter(s => s.formationId === selectedFormation!.formationId).length >= (selectedFormation!.nbrSessions || 0)">
+          <span class="material-symbols-outlined">warning</span>
+          Attention : Le nombre maximum de sessions ({{ selectedFormation!.nbrSessions }}) pour cette formation a déjà été atteint.
         </div>
 
         <!-- Actions -->

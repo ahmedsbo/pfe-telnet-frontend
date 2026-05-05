@@ -1,13 +1,14 @@
 .page {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 /* ── Header ── */
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 32px;
   margin-bottom: 28px;
 }
 
@@ -133,7 +134,7 @@
   border-radius: 14px;
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .table {
@@ -147,13 +148,15 @@
 }
 
 .table th {
-  padding: 14px 20px;
-  font-size: 11px;
+  padding: 10px 8px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: #9ca3af;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.2;
 }
 
 .table tbody tr {
@@ -165,8 +168,9 @@
 .table-row:hover { background: #f8f9fb; }
 
 .table td {
-  padding: 18px 20px;
+  padding: 10px 8px;
   vertical-align: middle;
+  font-size: 12px;
 }
 
 .center { text-align: center; }
@@ -180,9 +184,9 @@
 }
 
 .plan-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: rgba(0, 52, 111, 0.08);
   display: flex;
   align-items: center;
@@ -191,17 +195,18 @@
   flex-shrink: 0;
 }
 
-.plan-icon .material-symbols-outlined { font-size: 18px; }
+.plan-icon .material-symbols-outlined { font-size: 16px; }
 
 .plan-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   color: #111827;
+  line-height: 1.2;
 }
 
 /* ── Cell variants ── */
-.text-secondary    { font-size: 13px; color: #6b7280; font-weight: 500; }
-.text-primary-bold { font-size: 13px; color: #374151; font-weight: 600; }
+.text-secondary    { font-size: 11px; color: #6b7280; font-weight: 500; }
+.text-primary-bold { font-size: 11px; color: #374151; font-weight: 600; }
 .text-budget       { font-size: 14px; color: #00346f; font-weight: 700; }
 
 /* ── Tags ── */
@@ -350,4 +355,80 @@
 }
 .action-btn--danger:hover {
   background: rgba(239, 68, 68, 0.08);
+}
+
+/* ── Custom Select for Seances ── */
+.custom-select-container {
+  position: relative;
+  width: 100%;
+  min-width: 180px;
+}
+
+.custom-select-premium {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+.custom-select-premium:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.custom-select-premium:focus {
+  border-color: #00346f;
+  box-shadow: 0 0 0 3px rgba(0, 52, 111, 0.05);
+}
+
+/* ── Seances Stack View ── */
+.seances-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+
+.seance-badge-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  width: 100%;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
+}
+
+.seance-badge-mini:hover {
+  background: #e2e8f0;
+  color: #00346f;
+  border-color: #cbd5e1;
+}
+
+.seance-badge-mini .material-symbols-outlined {
+  font-size: 14px;
+  color: #64748b;
 }

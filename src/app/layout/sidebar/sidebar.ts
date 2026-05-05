@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 
 interface NavItem {
@@ -17,16 +18,19 @@ interface NavItem {
 })
 export class Sidebar {
   navItems: NavItem[] = [
-    { label: 'Dashboard',      icon: 'dashboard',         route: '/dashboard' },
-    { label: 'Training Plans', icon: 'event_note',        route: '/training-plans' },
-    { label: 'Formations',     icon: 'local_library',     route: '/formations' },
-    { label: 'Sessions',       icon: 'groups',            route: '/sessions' },
-    { label: 'Instructors',    icon: 'record_voice_over', route: '/instructors' },
-    { label: 'Reporting',      icon: 'analytics',         route: '/reporting' },
+    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Formations', icon: 'school', route: '/formations' },
+    { label: 'Sessions', icon: 'groups', route: '/sessions' },
+    { label: 'Training Plans', icon: 'event_note', route: '/training-plans' },
+    { label: 'Demandes', icon: 'assignment', route: '/demandes' },
+    { label: 'Organismes', icon: 'corporate_fare', route: '/organismes' },
+    { label: 'Évaluations', icon: 'grading', route: '/evaluations' },
   ];
 
-  bottomItems: NavItem[] = [
-    { label: 'Settings', icon: 'settings', route: '/settings' },
-    { label: 'Support',  icon: 'help',     route: '/support' },
-  ];
+  constructor(private auth: Auth, private router: Router) { }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }

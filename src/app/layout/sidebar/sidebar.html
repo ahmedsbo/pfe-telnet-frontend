@@ -19,15 +19,10 @@
 
   <!-- Bottom Navigation -->
   <div class="sidebar-bottom">
-    <a
-      *ngFor="let item of bottomItems"
-      [routerLink]="item.route"
-      routerLinkActive="nav-item--active"
-      class="nav-item"
-    >
-      <span class="material-symbols-outlined nav-icon">{{ item.icon }}</span>
-      <span class="nav-label">{{ item.label }}</span>
-    </a>
+    <button class="nav-item logout-btn" (click)="logout()">
+      <span class="material-symbols-outlined nav-icon">logout</span>
+      <span class="nav-label">Déconnexion</span>
+    </button>
   </div>
 
 </aside>

@@ -115,6 +115,7 @@
   font-size: 13px;
   font-weight: 600;
   color: #374151;
+  white-space: nowrap;
 }
 
 .required {
@@ -157,6 +158,13 @@ textarea.form-control {
 
 .is-invalid:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.readonly-field {
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+  cursor: not-allowed;
+  border-style: dashed;
 }
 
 .custom-select-wrapper {

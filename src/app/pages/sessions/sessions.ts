@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, NavigationEnd } from '@angular/router';
+import { ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { Session } from '../../models/session';
 import { SessionService } from '../../services/session.service';
 import { SessionFormComponent } from '../session-form/session-form';
 import { FormationService } from '../../services/formation';
-import { TrainingPlanService } from '../../services/training-plan.service';
 import { Formation } from '../../models/formation';
-import { TrainingPlan } from '../../models/training-plan';
 
 @Component({
   selector: 'app-sessions',
@@ -16,16 +18,16 @@ import { TrainingPlan } from '../../models/training-plan';
   templateUrl: './sessions.html',
   styleUrls: ['./sessions.css']
 })
-export class SessionsComponent implements OnInit {
+export class SessionsComponent implements OnInit, OnDestroy {
 
   sessions: Session[] = [];
-  filteredSessions: Session[] = [];
+  groupedSessions: { reference: string, sessions: Session[], selectedIndex: number }[] = [];
+  filteredGroups: { reference: string, sessions: Session[], selectedIndex: number }[] = [];
   isLoading = true;
   error: string | null = null;
 
   // Caching references to replace IDs with Titles in the table
   formationsMap = new Map<string, string>();
-  plansMap = new Map<string, string>();
 
   // Form toggling
   showForm = false;
@@ -38,26 +40,38 @@ export class SessionsComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 5;
 
+  private routerSubscription?: Subscription;
+
   constructor(
     private sessionService: SessionService,
     private formationService: FormationService,
-    private planService: TrainingPlanService
-  ) {}
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.loadSessions();
+    });
+  }
 
   ngOnInit(): void {
-    // Load dictionary of formations/plans to show real names instead of IDs
-    this.formationService.getAll().subscribe(formations => {
-      formations.forEach(f => {
-        if(f.formationId) this.formationsMap.set(f.formationId, f.titre);
-      });
-      // Then load plans
-      this.planService.getAll().subscribe(plans => {
-        plans.forEach(p => {
-          if(p.planFormationId) this.plansMap.set(p.planFormationId, p.titre);
+    this.loadFormations();
+    this.loadSessions();
+  }
+
+  ngOnDestroy() {
+    this.routerSubscription?.unsubscribe();
+  }
+
+  loadFormations(): void {
+    this.formationService.getAll().subscribe({
+      next: (data) => {
+        data.forEach(f => {
+          if (f.formationId) this.formationsMap.set(f.formationId, f.titre);
         });
-        // Finally load sessions
-        this.loadSessions();
-      });
+      },
+      error: (err) => console.error('Erreur chargement dictionnaire formations', err)
     });
   }
 
@@ -66,8 +80,10 @@ export class SessionsComponent implements OnInit {
     this.sessionService.getAll().subscribe({
       next: (data) => {
         this.sessions = data;
+        this.groupSessions();
         this.applyFilters();
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des sessions.';
@@ -77,22 +93,38 @@ export class SessionsComponent implements OnInit {
     });
   }
 
+  private groupSessions(): void {
+    const map = new Map<string, Session[]>();
+    this.sessions.forEach(s => {
+      const ref = s.reference || 'Sans référence';
+      if (!map.has(ref)) map.set(ref, []);
+      map.get(ref)?.push(s);
+    });
+
+    this.groupedSessions = Array.from(map.entries()).map(([ref, sessions]) => ({
+      reference: ref,
+      sessions: sessions.sort((a, b) => a.titre.localeCompare(b.titre)),
+      selectedIndex: 0
+    })).sort((a, b) => a.reference.localeCompare(b.reference, undefined, { numeric: true }));
+  }
+
   getFormationName(id?: string): string {
     return id ? (this.formationsMap.get(id) || id) : 'Non attribuée';
   }
 
-  getPlanName(id?: string): string {
-    return id ? (this.plansMap.get(id) || id) : 'Non attribué';
-  }
 
   applyFilters(): void {
     if (!this.searchQuery) {
-      this.filteredSessions = [...this.sessions];
+      this.filteredGroups = [...this.groupedSessions];
     } else {
       const q = this.searchQuery.toLowerCase();
-      this.filteredSessions = this.sessions.filter(s => 
-        (s.formateur && s.formateur.toLowerCase().includes(q)) ||
-        (s.formationId && this.getFormationName(s.formationId).toLowerCase().includes(q))
+      this.filteredGroups = this.groupedSessions.filter(g => 
+        g.reference.toLowerCase().includes(q) ||
+        g.sessions.some(s => 
+          (s.titre && s.titre.toLowerCase().includes(q)) ||
+          (s.formateur && s.formateur.toLowerCase().includes(q)) ||
+          (s.formationId && this.getFormationName(s.formationId).toLowerCase().includes(q))
+        )
       );
     }
     this.currentPage = 1;
@@ -104,13 +136,13 @@ export class SessionsComponent implements OnInit {
   }
 
   // Pagination getters
-  get paginatedSessions(): Session[] {
+  get paginatedGroups(): any[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredSessions.slice(startIndex, startIndex + this.itemsPerPage);
+    return this.filteredGroups.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredSessions.length / this.itemsPerPage);
+    return Math.ceil(this.filteredGroups.length / this.itemsPerPage);
   }
 
   get pageNumbers(): number[] {

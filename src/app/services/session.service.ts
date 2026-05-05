@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Session } from '../models/session';
 
 @Injectable({
@@ -14,6 +15,12 @@ export class SessionService {
 
   getAll(): Observable<Session[]> {
     return this.http.get<Session[]>(this.API_URL);
+  }
+
+  getByFormationId(formationId: string): Observable<Session[]> {
+    return this.http.get<Session[]>(this.API_URL).pipe(
+      map(sessions => sessions.filter(s => s.formationId === formationId))
+    );
   }
 
   getById(id: string): Observable<Session> {

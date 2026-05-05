@@ -1,0 +1,207 @@
+<div class="page">
+  <div style="margin-bottom: 28px;">
+    <div class="title-section">
+      <h1 class="page-title">Gestion des Évaluations</h1>
+      <p class="page-subtitle">Gérez et consultez les retours sur les formations suivies.</p>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div class="action-buttons">
+      <button class="btn-create btn-hot" (click)="openChaudForm()">
+        <span class="material-symbols-outlined">local_fire_department</span>
+        Nouvelle Évaluation à Chaud
+      </button>
+      <button class="btn-create btn-cold" (click)="openFroidForm()">
+        <span class="material-symbols-outlined">ac_unit</span>
+        Nouvelle Évaluation à Froid
+      </button>
+    </div>
+  </div>
+
+  <!-- Évaluations à Chaud -->
+  <div class="evaluation-section hot-section">
+    <div class="section-header">
+      <div class="header-content">
+        <span class="material-symbols-outlined">local_fire_department</span>
+        <h2>Liste des Évaluations (Chaud)</h2>
+      </div>
+      <div class="badge hot-badge">{{ evaluationsChaud.length }} évaluation(s)</div>
+    </div>
+    <div class="table-container modern-card">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Formation</th>
+            <th>Formateur</th>
+            <th>Date</th>
+            <th>Amélioration Externe</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let eval of evaluationsChaud">
+            <td class="font-bold">{{ eval.titre }}</td>
+            <td><span class="tag tag-formation">{{ getFormationTitre(eval.formationId) }}</span></td>
+            <td>{{ eval.formateur }}</td>
+            <td>{{ eval.dateEvaluation | date:'dd/MM/yyyy' }}</td>
+            <td class="text-muted">{{ eval.ameliorationExterne || '-' }}</td>
+            <td>
+              <button class="action-btn action-btn--danger" (click)="deleteEvaluation(eval.id)" title="Supprimer">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="evaluationsChaud.length === 0">
+            <td colspan="6" class="empty-state">
+              <div class="empty-content">
+                <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+                <p>Aucune évaluation à chaud enregistrée.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Évaluations à Froid -->
+  <div class="evaluation-section cold-section">
+    <div class="section-header">
+      <div class="header-content">
+        <span class="material-symbols-outlined">ac_unit</span>
+        <h2>Liste des Évaluations (Froid)</h2>
+      </div>
+      <div class="badge cold-badge">{{ evaluationsFroid.length }} évaluation(s)</div>
+    </div>
+    <div class="table-container modern-card">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Formation</th>
+            <th>Formateur</th>
+            <th>Date</th>
+            <th>Amélioration Interne</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let eval of evaluationsFroid">
+            <td class="font-bold">{{ eval.titre }}</td>
+            <td><span class="tag tag-formation">{{ getFormationTitre(eval.formationId) }}</span></td>
+            <td>{{ eval.formateur }}</td>
+            <td>{{ eval.dateEvaluation | date:'dd/MM/yyyy' }}</td>
+            <td class="text-muted">{{ eval.ameliorationInterne || '-' }}</td>
+            <td>
+              <button class="action-btn action-btn--danger" (click)="deleteEvaluation(eval.id)" title="Supprimer">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="evaluationsFroid.length === 0">
+            <td colspan="6" class="empty-state">
+              <div class="empty-content">
+                <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+                <p>Aucune évaluation à froid enregistrée.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Chaud -->
+  <div class="modal-backdrop" *ngIf="showChaudForm" (click)="showChaudForm = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header hot-modal-header">
+        <div class="header-title">
+          <span class="material-symbols-outlined">local_fire_department</span>
+          <h3>Ajouter une Évaluation à Chaud</h3>
+        </div>
+        <button class="btn-close" (click)="showChaudForm = false">×</button>
+      </div>
+      <form [formGroup]="chaudForm" (ngSubmit)="saveChaud()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Titre de l'évaluation</label>
+            <input type="text" formControlName="titre" placeholder="Ex: Evaluation Session Java">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Formation</label>
+              <select formControlName="formationId">
+                <option value="">Sélectionnez une formation</option>
+                <option *ngFor="let f of formations" [value]="f.formationId">{{ f.titre }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date d'évaluation</label>
+              <input type="date" formControlName="dateEvaluation">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Formateur</label>
+            <input type="text" formControlName="formateur" placeholder="Nom du formateur">
+          </div>
+          <div class="form-group">
+            <label>Pistes d'amélioration externe</label>
+            <textarea formControlName="ameliorationExterne" rows="3" placeholder="Quelles sont les pistes d'amélioration suggérées par les participants ?"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="showChaudForm = false">Annuler</button>
+          <button type="submit" class="btn-primary btn-hot-submit" [disabled]="chaudForm.invalid">Enregistrer l'évaluation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Froid -->
+  <div class="modal-backdrop" *ngIf="showFroidForm" (click)="showFroidForm = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header cold-modal-header">
+        <div class="header-title">
+          <span class="material-symbols-outlined">ac_unit</span>
+          <h3>Ajouter une Évaluation à Froid</h3>
+        </div>
+        <button class="btn-close" (click)="showFroidForm = false">×</button>
+      </div>
+      <form [formGroup]="froidForm" (ngSubmit)="saveFroid()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Titre de l'évaluation</label>
+            <input type="text" formControlName="titre" placeholder="Ex: Suivi post-formation Java">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Formation</label>
+              <select formControlName="formationId">
+                <option value="">Sélectionnez une formation</option>
+                <option *ngFor="let f of formations" [value]="f.formationId">{{ f.titre }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date d'évaluation</label>
+              <input type="date" formControlName="dateEvaluation">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Formateur</label>
+            <input type="text" formControlName="formateur" placeholder="Nom du formateur">
+          </div>
+          <div class="form-group">
+            <label>Pistes d'amélioration interne</label>
+            <textarea formControlName="ameliorationInterne" rows="3" placeholder="Quelles sont les pistes d'amélioration au sein de l'entreprise ?"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="showFroidForm = false">Annuler</button>
+          <button type="submit" class="btn-primary btn-cold-submit" [disabled]="froidForm.invalid">Enregistrer l'évaluation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -406,3 +406,193 @@ textarea.form-control {
   flex-shrink: 0;
 }
 
+/* ===== SÉANCES ===== */
+.form-group--third {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-ajouter-seance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-ajouter-seance:hover {
+  background: #dbeafe;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.15);
+}
+
+.btn-ajouter-seance .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.seance-card {
+  margin: 8px 16px 0;
+  background: #f8f9fb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  animation: panelSlide 0.2s ease-out;
+}
+
+.seance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.seance-header h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+}
+
+.btn-delete-seance {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.btn-delete-seance:hover {
+  background: #fef2f2;
+}
+
+.btn-delete-seance .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* ── Progress Bar Durée ── */
+.duration-progress-container {
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.duration-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.duration-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.duration-values {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #374151;
+}
+
+.duration-values strong {
+  font-weight: 800;
+  color: #00346f;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+}
+
+.bg-success { background-color: #10b981; } /* Vert */
+.bg-warning { background-color: #f59e0b; } /* Orange */
+.bg-danger  { background-color: #ef4444; } /* Rouge */
+
+.text-danger {
+  color: #ef4444 !important;
+}
+
+/* New Enhancements */
+.formation-dates-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-content .material-symbols-outlined {
+  color: #00346f;
+  font-size: 20px;
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-text strong {
+  font-size: 13px;
+  color: #334155;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-text span {
+  font-size: 14px;
+  color: #00346f;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 6px 12px;
+  background: #00346f;
+  color: white;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.readonly-input {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  cursor: not-allowed;
+  border-style: dashed;
+}

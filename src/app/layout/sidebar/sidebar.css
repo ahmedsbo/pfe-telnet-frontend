@@ -1,7 +1,5 @@
 :host {
   display: block;
-  width: 260px;
-  flex-shrink: 0;
 }
 
 .sidebar {
@@ -112,4 +110,17 @@
   gap: 2px;
   padding-top: 16px;
   border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.logout-btn {
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  color: #ef4444;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
 }

@@ -154,6 +154,14 @@
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
 }
 
+.readonly-field {
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  border-color: #e5e7eb !important;
+}
+
+
 .custom-select-wrapper {
   position: relative;
 }

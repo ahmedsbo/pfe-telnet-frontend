@@ -3,18 +3,34 @@
 <div class="page" style="padding-top: 2rem; padding-bottom: 2rem;">
 
   <!-- ── Header ── -->
+  <div style="margin-bottom: 24px;">
+    <h1 class="page-title">Gestion du Catalogue de Formation</h1>
+    <p class="page-subtitle">
+      Gérez l'ensemble des programmes, modules et ressources pédagogiques de votre entreprise.
+    </p>
+  </div>
   <div class="page-header">
-    <div>
-      <h2 class="page-title">Gestion des Formations</h2>
-      <p class="page-subtitle">
-        Consultez et administrez le catalogue des formations disponibles pour vos équipes.
-      </p>
-    </div>
+
     <button class="btn-create" (click)="createNewFormation()">
       <span class="material-symbols-outlined">add</span>
-      Ajouter Formation
+      Ajouter une Formation
     </button>
   </div>
+
+
+  <div class="filter-bar">
+    <div class="filter-chip" style="width: 300px;">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" [(ngModel)]="searchQuery" (keyup)="applyFiltersSearch()" placeholder="Rechercher une formation"
+        style="border: none; background: transparent; outline: none; flex: 1; font-family: 'Inter';">
+    </div>
+    <button class="btn-reset" (click)="resetFiltersSearch()">
+      <span class="material-symbols-outlined">close</span>
+      Effacer
+    </button>
+  </div>
+
+
 
   <!-- ── Filter Bar ── -->
   <div class="filter-bar">
@@ -52,78 +68,94 @@
   <div class="table-card" *ngIf="!isLoading && !error">
     <table class="table">
       <thead>
-      <tr>
-        <th>Titre</th>
-        <th>Type</th>
-        <th>Date Début</th>
-        <th>Date Fin</th>
-        <th>Durée</th>
-        <th class="center">Statut</th>
-        <th class="right">Actions</th>
-      </tr>
+        <tr>
+          <th>Reference</th>
+          <th>Titre</th>
+          <th>Type</th>
+          <th>Date Début</th>
+          <th>Date Fin</th>
+          <th>Durée</th>
+          <th class="center">Sessions</th>
+          <th class="center">Statut</th>
+          <th class="right">Actions</th>
+        </tr>
       </thead>
       <tbody>
 
-      <!-- Empty state -->
-      <tr *ngIf="paginatedFormations.length === 0">
-        <td colspan="7" class="empty-state">
-          <span class="material-symbols-outlined">inbox</span>
-          <p>Aucune formation trouvée.</p>
-        </td>
-      </tr>
+        <!-- Empty state -->
+        <tr *ngIf="paginatedFormations.length === 0">
+          <td colspan="8" class="empty-state">
+            <span class="material-symbols-outlined">inbox</span>
+            <p>Aucune formation trouvée.</p>
+          </td>
+        </tr>
 
-      <!-- Rows -->
-      <tr *ngFor="let formation of paginatedFormations" class="table-row">
+        <!-- Rows -->
+        <ng-container *ngFor="let formation of paginatedFormations">
 
-        <!-- Title -->
-        <td>
-          <div class="plan-name-cell">
-            <div class="plan-icon">
-              <span class="material-symbols-outlined">school</span>
-            </div>
-            <span class="plan-title">{{ formation.titre }}</span>
-          </div>
-        </td>
+          <!-- Main Row -->
+          <tr class="table-row">
 
-        <!-- Type -->
-        <td>
-          <span class="badge-type">{{ formation.typeFormation }}</span>
-        </td>
+            <td class="text-secondary" style="font-weight: 500;">{{ formation.reference }}</td>
 
-        <!-- Date Début -->
-        <td class="text-secondary">{{ formatDate(formation.dateDebut) }}</td>
+            <!-- Title -->
+            <td>
+              <div class="plan-name-cell">
+                <div class="plan-icon">
+                  <span class="material-symbols-outlined">school</span>
+                </div>
+                <span class="plan-title">{{ formation.titre }}</span>
+              </div>
+            </td>
 
-        <!-- Date Fin -->
-        <td class="text-secondary">{{ formatDate(formation.dateFin) }}</td>
+            <!-- Type -->
+            <td>
+              <span class="badge-type">{{ formation.typeFormation }}</span>
+            </td>
 
-        <!-- Durée -->
-        <td class="text-primary-bold">
-          {{ formation.duree }} jour(s)
-        </td>
+            <!-- Date Début -->
+            <td class="text-secondary">{{ formatDate(formation.dateDebut) }}</td>
 
-        <!-- Status -->
-        <td class="center">
-            <span [class]="getStatusClass(formation.etatformation)">
-              {{ getStatusLabel(formation.etatformation) }}
-            </span>
-        </td>
+            <!-- Date Fin -->
+            <td class="text-secondary">{{ formatDate(formation.dateFin) }}</td>
 
-        <!-- Actions -->
-        <td class="right">
-          <div class="action-group">
-            <button class="action-btn" title="Consulter" (click)="viewFormation(formation)">
-              <span class="material-symbols-outlined">visibility</span>
-            </button>
-            <button class="action-btn" title="Modifier" (click)="editFormation(formation)">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteFormation(formation)">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-          </div>
-        </td>
+            <!-- Durée -->
+            <td class="text-primary-bold">
+              {{ formation.duree }} heure(s)
+            </td>
 
-      </tr>
+            <!-- Sessions count badge -->
+            <td class="center">
+              <span class="sessions-count-btn" style="cursor: default;">
+                <span class="material-symbols-outlined" style="font-size:15px;">schedule</span>
+                <span>{{ formation.nbrSessions || 0 }}</span>
+              </span>
+            </td>
+
+            <!-- Status -->
+            <td class="center">
+              <span [class]="getStatusClass(formation.etatformation)">
+                {{ getStatusLabel(formation.etatformation) }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="right">
+              <div class="action-group">
+                <button class="action-btn" title="Modifier" (click)="editFormation(formation)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteFormation(formation)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+
+
+        </ng-container>
+
       </tbody>
     </table>
 
@@ -136,22 +168,17 @@
         <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
           Précédent
         </button>
-        <button
-          *ngFor="let p of pageNumbers"
-          class="page-btn"
-          [class.page-btn--active]="p === currentPage"
-          (click)="goToPage(p)"
-        >{{ p }}</button>
-        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages || totalPages === 0">
+        <button *ngFor="let p of pageNumbers" class="page-btn" [class.page-btn--active]="p === currentPage"
+          (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages || totalPages === 0">
           Suivant
         </button>
       </div>
     </div>
   </div>
 
-  <app-formation-form 
-    *ngIf="showForm" 
-    [formationId]="editingFormationId" 
+  <app-formation-form *ngIf="showForm" [formationId]="editingFormationId" [existingFormations]="formations"
     (closeForm)="onFormClose($event)">
   </app-formation-form>
 
