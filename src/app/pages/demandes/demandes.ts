@@ -76,19 +76,54 @@ export class Demandes implements OnInit, OnDestroy {
       dateDemande: [new Date().toISOString().substring(0, 10), Validators.required],
       formationId: [''],
       planFormationId: [''],
-      etatDemande: ['En attente']
+      reference: [{ value: '', disabled: true }],
+      etatDemande: ['EN_ATTENTE']
     });
 
-
-    // Auto-select plan when formation is selected
+    // Auto-generation logic
     this.demandeForm.get('formationId')?.valueChanges.subscribe(fId => {
       if (fId) {
         const plan = this.plans.find(p => p.formationId === fId);
         if (plan) {
-          this.demandeForm.get('planFormationId')?.setValue(plan.planFormationId);
+          this.demandeForm.get('planFormationId')?.setValue(plan.planFormationId, { emitEvent: false });
         }
+        this.autoGenerateReference();
       }
     });
+
+    this.demandeForm.get('planFormationId')?.valueChanges.subscribe(() => {
+      this.autoGenerateReference();
+    });
+  }
+
+  private autoGenerateReference(): void {
+    const fId = this.demandeForm.get('formationId')?.value;
+    const pId = this.demandeForm.get('planFormationId')?.value;
+
+    if (fId) {
+      const formation = this.formations.find(f => f.formationId === fId);
+      if (formation && formation.reference) {
+        const parts = formation.reference.split('-');
+        const suffix = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+        // Extract numeric part if suffix is like "S001" or just "001"
+        const numericMatch = suffix.match(/\d+/);
+        const numericSuffix = numericMatch ? numericMatch[0] : suffix;
+        this.demandeForm.get('reference')?.setValue(`REF-D${numericSuffix}`);
+        return;
+      }
+    }
+
+    if (pId) {
+      const plan = this.plans.find(p => p.planFormationId === pId);
+      if (plan && plan.reference) {
+        const parts = plan.reference.split('-');
+        const suffix = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+        const numericMatch = suffix.match(/\d+/);
+        const numericSuffix = numericMatch ? numericMatch[0] : suffix;
+        this.demandeForm.get('reference')?.setValue(`REF-D${numericSuffix}`);
+        return;
+      }
+    }
   }
 
 
@@ -110,8 +145,8 @@ export class Demandes implements OnInit, OnDestroy {
       this.filteredDemandes = this.demandes.filter(s =>
         (s.titre && s.titre.toLowerCase().includes(q)) ||
         (s.demandeur && s.demandeur.toLowerCase().includes(q)) ||
+        (s.reference && s.reference.toLowerCase().includes(q)) ||
         (s.etatDemande && s.etatDemande.toLowerCase().includes(q))
-
       );
     }
     this.currentPage = 1;
@@ -160,37 +195,40 @@ export class Demandes implements OnInit, OnDestroy {
 
   getBadgeClass(etat: string | undefined): string {
     if (!etat) return 'badge--warning';
-    switch (etat.toLowerCase()) {
-      case 'approuvée':
-      case 'approuvé':
-      case 'approuve':
+    switch (etat.toUpperCase()) {
+      case 'ACCEPTEE':
+      case 'APPROUVEE':
+      case 'APPROUVE':
         return 'badge--success';
-      case 'rejetée':
-      case 'rejete':
+      case 'REFUSEE':
+      case 'REJETEE':
+      case 'REJETE':
         return 'badge--danger';
-      case 'en attente':
+      case 'EN_ATTENTE':
         return 'badge--warning';
+      case 'ANNULEE':
+        return 'badge--grey';
       default:
         return 'badge--grey';
     }
   }
 
-  getFormationTitle(id?: string): string {
+  getFormationReference(id?: string): string {
     if (!id) return '-';
-    const formation = this.formations.find(f => f.formationId === id);
-    return formation ? formation.titre : '-';
+    const formation = this.formations.find(f => f.formationId === id || (f as any).id === id || (f as any)._id === id);
+    return formation ? formation.reference : '-';
   }
 
-  getPlanTitle(id?: string): string {
+  getPlanReference(id?: string): string {
     if (!id) return '-';
-    const plan = this.plans.find(p => p.planFormationId === id);
-    return plan ? plan.titre : '-';
+    const plan = this.plans.find(p => p.planFormationId === id || (p as any).id === id || (p as any)._id === id);
+    return plan ? plan.reference : '-';
   }
 
   createNewDemande(): void {
     this.demandeForm.reset({
       dateDemande: new Date().toISOString().substring(0, 10),
-      etatDemande: 'En attente'
+      etatDemande: 'EN_ATTENTE'
     });
     this.isModalOpen = true;
   }
@@ -202,7 +240,18 @@ export class Demandes implements OnInit, OnDestroy {
   submitDemande(): void {
     if (this.demandeForm.invalid) return;
 
-    const newDemande: Demande = this.demandeForm.value;
+    const newDemande: Demande = this.demandeForm.getRawValue();
+
+    const alreadyExists = this.demandes.find(d => 
+      d.utilisateurId === newDemande.utilisateurId && 
+      d.formationId === newDemande.formationId &&
+      newDemande.formationId 
+    );
+
+    if (alreadyExists) {
+      alert('Cet employé a déjà soumis une demande pour cette formation.');
+      return;
+    }
 
     const employeSelected = this.employes.find(e => e.utilisateurId === newDemande.utilisateurId);
     if (employeSelected) {
@@ -222,14 +271,23 @@ export class Demandes implements OnInit, OnDestroy {
   updateStatus(demande: Demande, nouvelEtat: string): void {
     if (!demande.demandeId) return;
 
+    // On demande confirmation avant d'envoyer le mail d'affectation
+    if (nouvelEtat === 'ACCEPTEE') {
+      const confirmMail = confirm("Voulez-vous envoyer un mail d'affectation aux demandeurs ?");
+      if (!confirmMail) return; // On annule si l'utilisateur clique sur "Annuler"
+    }
+
     const ancienEtat = demande.etatDemande;
     demande.etatDemande = nouvelEtat;
 
     this.demandeService.update(demande.demandeId, demande).subscribe({
-      next: () => console.log('Statut mis à jour avec succès'),
+      next: () => {
+        console.log('Statut mis à jour avec succès et mail envoyé (si accepté)');
+      },
       error: (err: any) => {
         console.error('Erreur lors de la mise à jour', err);
         demande.etatDemande = ancienEtat; // Restauration en cas d'erreur
+        alert("Une erreur est survenue lors de la mise à jour.");
       }
     });
   }

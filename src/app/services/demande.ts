@@ -7,7 +7,7 @@ import { Demande } from '../models/demande';
   providedIn: 'root',
 })
 export class DemandeService {
-   private API_URL = 'http://localhost:8080/api/demandes';
+   private API_URL = '/api/demandes';
 
    constructor(private http: HttpClient) {}
 

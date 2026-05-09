@@ -7,7 +7,7 @@ import { FormateurExterne } from '../models/formateur-externe';
   providedIn: 'root'
 })
 export class FormateurExterneService {
-  private apiUrl = 'http://localhost:8080/api/formateurs-externes';
+  private apiUrl = '/api/formateurs-externes';
 
   constructor(private http: HttpClient) { }
 

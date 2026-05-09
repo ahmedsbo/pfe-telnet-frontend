@@ -38,6 +38,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th>Référence</th>
           <th>Titre</th>
           <th>Demandeur</th>
           <th>Formation</th>
@@ -59,6 +60,11 @@
         <!-- Rows -->
         <tr *ngFor="let d of paginatedDemandes" class="table-row">
           <td>
+            <span class="text-secondary" style="font-weight: 600; color: var(--primary-color);">
+              {{ d.reference }}
+            </span>
+          </td>
+          <td>
             <div class="plan-name-cell">
               <div class="plan-icon">
                 <span class="material-symbols-outlined">description</span>
@@ -72,25 +78,28 @@
             {{ d.demandeur }}
           </td>
           <td class="text-secondary">
-            {{ getFormationTitle(d.formationId) }}
+            {{ getFormationReference(d.formationId) }}
           </td>
           <td class="text-secondary">
-            {{ getPlanTitle(d.planFormationId) }}
+            {{ getPlanReference(d.planFormationId) }}
           </td>
           <td class="text-secondary">
             {{ d.dateDemande }}
           </td>
           <td class="center">
             <span class="badge" [ngClass]="getBadgeClass(d.etatDemande)">
-              {{ d.etatDemande || 'En attente' }}
+              {{ d.etatDemande === 'EN_ATTENTE' ? 'En attente' :
+              d.etatDemande === 'ACCEPTEE' ? 'Approuvée' :
+              d.etatDemande === 'REFUSEE' ? 'Rejetée' :
+              d.etatDemande || 'En attente' }}
             </span>
           </td>
           <td class="right">
             <div class="action-group">
-              <button class="action-btn action-btn--success" title="Approuver" (click)="updateStatus(d, 'Approuvée')">
+              <button class="action-btn action-btn--success" title="Approuver" (click)="updateStatus(d, 'ACCEPTEE')">
                 <span class="material-symbols-outlined">done</span>
               </button>
-              <button class="action-btn action-btn--warning" title="Rejeter" (click)="updateStatus(d, 'Rejetée')">
+              <button class="action-btn action-btn--warning" title="Rejeter" (click)="updateStatus(d, 'REFUSEE')">
                 <span class="material-symbols-outlined">close</span>
               </button>
               <button class="action-btn action-btn--danger" title="Supprimer" (click)="deleteDemande(d.demandeId!)">
@@ -135,6 +144,12 @@
         <div class="form-group">
           <label>Titre de la demande</label>
           <input type="text" formControlName="titre" placeholder="Ex: Formation en Angular..." required>
+        </div>
+
+        <div class="form-group">
+          <label>Référence</label>
+          <input type="text" formControlName="reference" readonly
+            style="background-color: #f8f9fa; cursor: not-allowed;">
         </div>
 
         <div class="form-group">

@@ -7,4 +7,5 @@ export interface Demande {
     formationId?: string;
     planFormationId?: string;
     utilisateurId?: string;
+    reference?: string;
 }

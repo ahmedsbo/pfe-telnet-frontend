@@ -8,7 +8,7 @@ import { Evaluation, EvaluationAChaud, EvaluationAFroid } from '../models/evalua
 })
 export class EvaluationService {
 
-  private API_URL = 'http://localhost:8080/api/evaluations';
+  private API_URL = '/api/evaluations';
 
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ import { Session } from '../models/session';
 })
 export class SessionService {
 
-  private API_URL = 'http://localhost:8080/api/sessions';
+  private API_URL = '/api/sessions';
 
   constructor(private http: HttpClient) {}
 

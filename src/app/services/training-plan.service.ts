@@ -6,7 +6,7 @@ import { TrainingPlan } from '../models/training-plan';
 @Injectable({ providedIn: 'root' })
 export class TrainingPlanService {
 
-  private API_URL = 'http://localhost:8080/api/plans-formation';
+  private API_URL = '/api/plans-formation';
 
   constructor(private http: HttpClient) {}
 

@@ -7,7 +7,7 @@ import { Organisme } from '../models/organisme';
   providedIn: 'root'
 })
 export class OrganismeService {
-  private apiUrl = 'http://localhost:8080/api/organismes';
+  private apiUrl = '/api/organismes';
 
   constructor(private http: HttpClient) { }
 
